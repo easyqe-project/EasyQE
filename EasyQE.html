@@ -24,7 +24,7 @@
     vincolante della licenza è quello inglese, distribuito nel file LICENSE
     e reperibile all'indirizzo <https://www.gnu.org/licenses/agpl-3.0.txt>.
 
-    Codice sorgente: [URL DEL REPOSITORY]
+    Codice sorgente: https://github.com/easyqe-project/EasyQE
     Contatti: mauro.moroni@mac.com oppure carlottamz@libero.it
 
     AVVERTENZA. EasyQE è opera personale degli autori. Non è un prodotto né
@@ -117,7 +117,7 @@
 <main id="vista"></main>
 
 <footer class="licenza">
-  <p>EasyQE <span id="fVer">v1.00</span> &mdash; Copyright &copy; 2026 Mauro Moroni, Carlotta Mazza. Software libero rilasciato sotto <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">GNU Affero General Public License v3.0 o successive</a>. Il <a href="[URL DEL REPOSITORY]" target="_blank" rel="noopener">codice sorgente completo</a> è liberamente consultabile, scaricabile e modificabile.</p>
+  <p>EasyQE <span id="fVer">v1.00</span> &mdash; Copyright &copy; 2026 Mauro Moroni, Carlotta Mazza. Software libero rilasciato sotto <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">GNU Affero General Public License v3.0 o successive</a>. Il <a href="https://github.com/easyqe-project/EasyQE" target="_blank" rel="noopener">codice sorgente completo</a> è liberamente consultabile, scaricabile e modificabile.</p>
   <p>Opera personale degli autori: non è un prodotto né uno strumento di alcun organismo di ispezione, società o ente, e non è stato validato o approvato da alcun soggetto terzo. Non esegue calcoli progettuali, non esprime giudizi di conformità e non sostituisce le valutazioni dei soggetti competenti. La responsabilità dei dati immessi e degli elaborati prodotti è esclusivamente dell'utente. Il programma è fornito senza garanzie di alcun tipo.</p>
 </footer>
 <div id="copertina"></div>
@@ -334,6 +334,22 @@ function iconaInfo(key){
    solo quando cambia il formato. */
 const APP_VERSION="1.00";
 let db=null, tabAtt="testata", soggettoInEdit=null;
+/* v1.00 (13-8-2026, richiesto da Mauro): avvisa prima di chiudere la finestra/scheda se ci sono modifiche non
+   ancora salvate su disco — un evento registrato (incluse nomine/cessazioni/rettifiche di soggetto e chiusure
+   di fase, che passano tutte da appendEvento()), o una bozza salvata con "Salva e continua dopo" (in memoria,
+   non ancora su file). Il flag si azzera dopo un salvaFile() riuscito, dopo l'apertura di un file, o all'avvio
+   di una nuova opera. Il testo del dialogo NON è personalizzabile: dal 2016-2017 i browser principali ignorano
+   qualunque messaggio passato a beforeunload e mostrano un proprio avviso generico fisso — qui ci si limita ad
+   attivare o meno il dialogo nativo, non a definirne il contenuto (confermato con Mauro prima di procedere).
+   Non coperto: modifiche ai campi di "Dati generali di base" digitate ma non ancora passate in db tramite
+   leggiTestata() (che avviene al cambio scheda) — non sono ancora nel modello dati, quindi fuori perimetro di
+   questo meccanismo, che segnala solo cambiamenti già scritti in db. */
+let modificheNonSalvate=false;
+window.addEventListener("beforeunload",function(e){
+  if(!modificheNonSalvate) return;
+  e.preventDefault();
+  e.returnValue="";
+});
 
 function nuovoDb(){ return {
   schema_version:"1.2",
@@ -502,6 +518,7 @@ async function appendEvento(ev){
   db.registro_eventi.push(ev);
   db.lineage.contatore_eventi=ev.id;
   db.lineage.hash_ultimo_evento=ev.hash;
+  modificheNonSalvate=true;
 }
 async function verificaCatena(){
   let prev="GENESI";
@@ -518,6 +535,7 @@ async function verificaCatena(){
 function nuovoFile(){
   if(db&&!confirm("Creare una nuova opera? I dati non salvati andranno persi."))return;
   db=nuovoDb();
+  modificheNonSalvate=false;
   const nick=prompt("Nickname dell'opera (max 10 caratteri, senza spazi).\nEntra nel nome del file: QE_<CUP>_<nickname>.json");
   if(nick!==null) db.testata.nickname=nick.replace(/\s/g,"").slice(0,10);
   tabAtt="testata"; render();
@@ -536,6 +554,7 @@ function apriFile(f){
          per bozza_evento). Nuovo campo tipologia_intervento, assente nei file vecchi: default "". */
       if(typeof db.testata.soggetta_L717==="boolean") db.testata.soggetta_L717=db.testata.soggetta_L717?"si":"no";
       if(!("tipologia_intervento" in db.testata)) db.testata.tipologia_intervento="";
+      modificheNonSalvate=false;
       const err=await verificaCatena();
       if(err) alert("ATTENZIONE — "+err+"\nIl file potrebbe essere stato alterato o essere una copia divergente.");
       tabAtt="testata"; render();
@@ -556,10 +575,12 @@ async function salvaFile(){
     try{
       const h=await showSaveFilePicker({suggestedName:nomeFile(),types:[{description:"File opera QE",accept:{"application/json":[".json"]}}]});
       const w=await h.createWritable(); await w.write(blob); await w.close();
+      modificheNonSalvate=false;
       $("hNomeFile").textContent=nomeFile(); return;
     }catch(ex){ if(ex.name==="AbortError")return; }
   }
   const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=nomeFile(); a.click();
+  modificheNonSalvate=false;
   $("hNomeFile").textContent=nomeFile();
 }
 
@@ -873,6 +894,7 @@ function raccogliBozza(){
 }
 function salvaBozza(){
   db.bozza_evento=raccogliBozza();
+  modificheNonSalvate=true;
   $("eMsg").innerHTML='<div class="msg ok">Bozza salvata nel file opera (nessun evento registrato, nessuno snapshot). Ricordati di salvare il file col pulsante «Salva» in alto.</div>';
 }
 function scartaBozza(){ if(confirm("Scartare la bozza di evento non conclusa?")){ db.bozza_evento=null; render(); } }
