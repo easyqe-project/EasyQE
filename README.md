@@ -15,6 +15,7 @@ EasyQE è frutto di un lavoro interattivo e iterativo che:
 •	tramite lo sviluppo (Claude) e il testing analitico dettagliato (noi) attuato con cicli di iterazioni successive,
 
 •	grazie al testing finale e all’analisi dei casi limite (noi e alcuni colleghi volenterosi)
+
 ha portato alla realizzazione di ciò che vi troverete tra le mani.
 
 Uno degli obiettivi che ci siamo posti scegliendo questa strategia di implementazione è stato quello di verificare se e come e fino a che punto l’intelligenza artificiale, così presente nei discorsi (a volte nelle ciance) di tantissimi operatori sia effettivamente utilizzabile da e utile per persone che, come noi, hanno una buona dotazione di intelligenza naturale e una modestissima competenza informatica negli specifici linguaggi.
