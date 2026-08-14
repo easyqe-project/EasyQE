@@ -9,17 +9,24 @@ Al fine di supportare anche operativamente la redazione di un quadro economico c
 EasyQe, così si chiama lo strumento, è stato progettato dettagliatamente da intelligenze naturali (le nostre) e trasformato in software grazie dall’interazione con un’intelligenza artificiale agentica (Claude Cowork di Anthropic) che ha provveduto a scrivere il codice (un insieme di routine HTML5, CSS e JavaScript) sopperendo alla nostra ignoranza in materia.
 
 EasyQE è frutto di un lavoro interattivo e iterativo che:
+
 •	attraverso le attività di sviluppo concettuale (interazione tra noi e Claude),
+
 •	tramite lo sviluppo (Claude) e il testing analitico dettagliato (noi) attuato con cicli di iterazioni successive,
+
 •	grazie al testing finale e all’analisi dei casi limite (noi e alcuni colleghi volenterosi)
 ha portato alla realizzazione di ciò che vi troverete tra le mani.
 
 Uno degli obiettivi che ci siamo posti scegliendo questa strategia di implementazione è stato quello di verificare se e come e fino a che punto l’intelligenza artificiale, così presente nei discorsi (a volte nelle ciance) di tantissimi operatori sia effettivamente utilizzabile da e utile per persone che, come noi, hanno una buona dotazione di intelligenza naturale e una modestissima competenza informatica negli specifici linguaggi.
 
 Il risultato è, a nostro avviso, confortante: è possibile integrare le capacità professionali umane con il supporto dell’intelligenza artificiale senza rinunciare né al controllo del processo né all’originalità del pensiero, né infine alla capacità di indirizzare il prodotto verso ciò che si desidera effettivamente ottenere. È cioè possibile usare l’intelligenza artificiale come un qualunque strumento software purché si sia disposti a:
+
 •	studiarne le regole fondamentali di funzionamento,
+
 •	sperimentare e apprendere le tecniche di utilizzo per ottimizzarne al massimo i risultati e il beneficio ottenibile,
+
 •	codificare preventivamente le modalità di controllo e verifica del prodotto realizzato.
+
 •	non rinunciare alla gestione diretta del processo produttivo e non a non pensare che lo strumento possa sopperire alle nostre incompetenze contenutistiche.
 
 In questo, crediamo di poter dire, lo strumento dell’intelligenza artificiale non è in nulla diverso da qualunque altro strumento software: un programma di calcolo strutturale, un foglio di calcolo elettronico, un programma per il disegno automatico, un database per la gestione delle informazioni. È solo estremamente più flessibile, più completo e – last but not least – può essere utilizzato mediante il linguaggio naturale, cosa di importanza non trascurabile.
