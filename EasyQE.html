@@ -1,0 +1,1497 @@
+<!--
+    EasyQE v1.00 - Strumento per la redazione del quadro economico
+    delle opere pubbliche ai sensi del D.Lgs. 36/2023
+
+    Copyright (C) 2026  Mauro Moroni, Carlotta Mazza
+
+    Questo programma è software libero: puoi ridistribuirlo e/o modificarlo
+    secondo i termini della GNU Affero General Public License come pubblicata
+    dalla Free Software Foundation, nella versione 3 della Licenza, oppure
+    (a tua scelta) in una versione successiva.
+
+    Questo programma è distribuito nella speranza che sia utile, ma SENZA
+    ALCUNA GARANZIA; senza neppure la garanzia implicita di COMMERCIABILITÀ
+    o IDONEITÀ PER UN PARTICOLARE SCOPO. Consulta la GNU Affero General
+    Public License per maggiori dettagli.
+
+    Dovresti aver ricevuto una copia della GNU Affero General Public License
+    insieme a questo programma. In caso contrario, vedi
+    <https://www.gnu.org/licenses/>.
+
+    SPDX-License-Identifier: AGPL-3.0-or-later
+
+    Il presente commento ha valore informativo. Il testo giuridicamente
+    vincolante della licenza è quello inglese, distribuito nel file LICENSE
+    e reperibile all'indirizzo <https://www.gnu.org/licenses/agpl-3.0.txt>.
+
+    Codice sorgente: [URL DEL REPOSITORY]
+    Contatti: mauro.moroni@mac.com oppure carlottamz@libero.it
+
+    AVVERTENZA. EasyQE è opera personale degli autori. Non è un prodotto né
+    uno strumento di alcun organismo di ispezione, società o ente, e non è
+    stato validato, certificato o approvato da alcun soggetto terzo. Non
+    esegue calcoli progettuali, non esprime giudizi di conformità e non
+    sostituisce le valutazioni dei soggetti competenti. La responsabilità
+    dei dati immessi e degli elaborati prodotti è esclusivamente dell'utente.
+-->
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quadro economico</title>
+<style>
+  :root{--blu:#E1231B;--blu2:#b81c15;--grigio:#f2f4f7;--bordo:#d5dbe3;--rosso:#7a1410;--verde:#1b6e3c;--giallo:#8a6d00;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Segoe UI",system-ui,sans-serif;background:var(--grigio);color:#1c2430;font-size:14px}
+  header{background:var(--blu);color:#fff;padding:10px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  header h1{font-size:16px;font-weight:600}
+  header .file{font-size:12px;opacity:.85;flex:1}
+  button{background:var(--blu2);color:#fff;border:none;border-radius:6px;padding:7px 14px;cursor:pointer;font-size:13px}
+  button:hover{filter:brightness(1.12)}
+  button.sec{background:#e8ecf1;color:var(--blu)}
+  button.warn{background:var(--rosso)}
+  nav{display:flex;gap:2px;background:#fff;border-bottom:2px solid var(--bordo);padding:0 24px;flex-wrap:wrap}
+  nav>div,nav{max-width:1600px}
+  nav button{background:none;color:#4a5568;border-radius:0;padding:11px 14px;border-bottom:3px solid transparent}
+  nav button.att{color:var(--blu);border-bottom-color:var(--blu);font-weight:600}
+  main{padding:20px 24px;max-width:1600px;min-height:1200px;margin:0 auto}
+  .card{background:#fff;border:1px solid var(--bordo);border-radius:8px;padding:20px 24px;margin-bottom:16px}
+  .card h2{font-size:15px;color:var(--blu);margin-bottom:12px}
+  .griglia{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px 18px}
+  label{display:block;font-size:11px;font-weight:600;color:#5a6675;margin-bottom:3px;text-transform:uppercase;letter-spacing:.03em}
+  input,select,textarea{width:100%;padding:7px 8px;border:1px solid var(--bordo);border-radius:5px;font-size:13px;background:#fff}
+  input:disabled{background:#eef0f3;color:#8a94a1}
+  input[type=radio],input[type=checkbox]{width:auto;margin:0;accent-color:var(--blu)}
+  .chk{display:inline-flex;gap:4px;align-items:center;margin-right:10px;font-size:11px;text-transform:none;font-weight:400;white-space:nowrap;cursor:pointer}
+  .cellbox{border:1px solid var(--bordo);border-radius:5px;padding:7px 8px;background:#fff;text-align:right;font-variant-numeric:tabular-nums;min-height:33px;color:#1c2430}
+  .radio-riga{display:flex;flex-wrap:wrap;gap:10px 22px;padding:9px 2px}
+  .radio-riga label{text-transform:none;font-weight:400;font-size:13px;display:flex;gap:6px;align-items:center;white-space:nowrap;margin:0}
+  textarea{min-height:70px;resize:vertical}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{background:#eef2f6;text-align:left;padding:7px 8px;font-size:11px;text-transform:uppercase;color:#5a6675;border-bottom:2px solid var(--bordo)}
+  td{padding:6px 8px;border-bottom:1px solid #e8ecf1;vertical-align:top}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  .tot{font-weight:700;background:#f6f8fa}
+  .pill{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;font-weight:600}
+  .pill.b{background:#fde8e6;color:var(--rosso)} .pill.w{background:#fdf3d7;color:var(--giallo)} .pill.ok{background:#e2f2e8;color:var(--verde)}
+  .msg{padding:8px 10px;border-radius:6px;margin:6px 0;font-size:13px}
+  .msg.err{background:#fde8e6;color:var(--rosso)} .msg.warn{background:#fdf3d7;color:var(--giallo)} .msg.ok{background:#e2f2e8;color:var(--verde)}
+  .riga-din{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:6px;margin-bottom:6px;align-items:end}
+  .riga-fonte{display:grid;grid-template-columns:1.2fr 1fr 1.5fr .6fr .6fr 1fr auto;gap:6px;margin-bottom:6px;align-items:end}
+  .mini{font-size:11px;color:#7a8494}
+  .info-ico{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;border:1px solid var(--blu);color:var(--blu);font-size:10px;font-style:italic;font-family:Georgia,"Times New Roman",serif;font-weight:bold;line-height:1;margin-left:5px;cursor:help;user-select:none;vertical-align:middle}
+  #copertina{display:none}
+  @media print{ body>*{display:none!important} #copertina{display:block!important}
+    #copertina table:last-of-type{margin-bottom:0}
+    #copertina .cop-int>*:last-child{margin-bottom:0;padding-bottom:0}
+    #copertina tr{page-break-inside:avoid} }
+  #copertina *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #copertina .cop-int{max-width:800px;margin:0 auto;padding:24px 40px 0;font-family:Arial,Helvetica,sans-serif;font-size:10pt}
+  #copertina h1{font-size:14pt;font-weight:bold;text-align:center;margin-bottom:6px;font-family:Arial,Helvetica,sans-serif}
+  #copertina h2{font-size:10pt;font-weight:bold;text-align:left;margin:14px 0 6px;font-family:Arial,Helvetica,sans-serif;background:#f3f3f3;padding:4px 8px}
+  #copertina h2.den{font-size:14pt;font-weight:normal;text-align:center;margin-bottom:20px;background:none;padding:0}
+  #copertina table{margin:10px 0;font-size:10pt;width:100%;border-collapse:collapse}
+  #copertina td{border-bottom:1px solid #ccc;padding:4px 8px;font-size:10pt}
+  #copertina p{font-size:10pt;text-align:justify}
+  .vuoto{color:#9aa3af;font-style:italic}
+  footer.licenza{max-width:1600px;margin:0 auto;padding:16px 24px 26px;font-size:11px;line-height:1.5;color:#6b7684;border-top:1px solid var(--bordo)}
+  footer.licenza a{color:#4a5568}
+  footer.licenza p{margin-bottom:5px}
+  header .ver{font-size:11px;font-weight:600;letter-spacing:.04em;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:4px;padding:2px 7px;white-space:nowrap}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>EasyQE</h1>
+  <span class="ver" id="hVer">v1.00</span>
+  <span class="file" id="hNomeFile">nessun file aperto</span>
+  <button class="sec" onclick="nuovoFile()">Nuova opera</button>
+  <button class="sec" onclick="document.getElementById('inApri').click()">Apri…</button>
+  <input type="file" id="inApri" accept=".json" style="display:none" onchange="apriFile(this.files[0])">
+  <button onclick="salvaFile()">Salva</button>
+</header>
+
+<nav id="tabs"></nav>
+<main id="vista"></main>
+
+<footer class="licenza">
+  <p>EasyQE <span id="fVer">v1.00</span> &mdash; Copyright &copy; 2026 Mauro Moroni, Carlotta Mazza. Software libero rilasciato sotto <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">GNU Affero General Public License v3.0 o successive</a>. Il <a href="[URL DEL REPOSITORY]" target="_blank" rel="noopener">codice sorgente completo</a> è liberamente consultabile, scaricabile e modificabile.</p>
+  <p>Opera personale degli autori: non è un prodotto né uno strumento di alcun organismo di ispezione, società o ente, e non è stato validato o approvato da alcun soggetto terzo. Non esegue calcoli progettuali, non esprime giudizi di conformità e non sostituisce le valutazioni dei soggetti competenti. La responsabilità dei dati immessi e degli elaborati prodotti è esclusivamente dell'utente. Il programma è fornito senza garanzie di alcun tipo.</p>
+</footer>
+<div id="copertina"></div>
+
+<script>
+"use strict";
+/* ====== COSTANTI (doc 03, schema v1.2) ====== */
+const FASI_SEQ = {
+  appalto_ordinario:["TRI","ANN","PFTE","PE","AGG","ESEC_SAL","ESEC_SF","COLL","CHIU"],
+  appalto_integrato:["TRI","ANN","PFTE","AGG","PE","ESEC_SAL","ESEC_SF","COLL","CHIU"]
+};
+function fasiSeq(){ return FASI_SEQ[(db&&db.testata.modalita_affidamento)||"appalto_ordinario"]||FASI_SEQ.appalto_ordinario; }
+function faseIdx(f){ return fasiSeq().indexOf(f); }
+function faseNum(f){ const i=faseIdx(f); return i<0?f:"F.0"+(i+1); }
+function faseLbl(f){
+  const integrato=db&&db.testata.modalita_affidamento==="appalto_integrato";
+  const mod=integrato?"integrato":"ordinario";
+  const base={TRI:"Inserimento nel programma triennale (DOCFAP se presente)",ANN:"Inserimento nell'elenco annuale (DIP)",
+    PFTE:"PFTE da appalto "+mod,PE:"PE da appalto "+mod,AGG:"Aggiudicazione gara appalto "+mod,
+    ESEC_SAL:"Esecuzione dei lavori - SAL",ESEC_SF:"Esecuzione dei lavori - SF",COLL:"Collaudo tecnico-amministrativo",CHIU:"Chiusura dei lavori"}[f]||f;
+  return faseNum(f)+" - "+base;
+}
+/* ---- Granularità fase-dipendente (v0.07): una voce madre può portare l'attributo
+   disaggregazione:{da_fase,sotto_voci:[...]}. Prima di quella fase è imputabile normalmente;
+   da quella fase in poi diventa un totale calcolato (somma delle sotto_voci, che diventano
+   editabili). faseMax ricava l'indice di fase più avanzato tra un elenco di eventi (o dalla
+   fase corrente, se passata esplicitamente); disaggAttiva verifica se la soglia è raggiunta. ---- */
+function faseMax(eventi){
+  let m=-1;
+  (eventi||[]).forEach(ev=>{ const i=faseIdx(ev.fase); if(i>m) m=i; });
+  return m;
+}
+function disaggAttiva(x,faseRifIdx){ return !!(x.disaggregazione && faseRifIdx>=faseIdx(x.disaggregazione.da_fase)); }
+/* ---- Appalto integrato (v0.11, 14-7-2026): due voci di Quadro A (e, f — ex e.8.3/e.8.5) e una seconda riga ECO
+   (ECO_ING) esistono SOLO se modalita_affidamento="appalto_integrato" e la fase ha raggiunto la soglia indicata
+   in solo_se_integrato_da_fase; specularmente, le sotto-voci e.8.3/e.8.5/e.9.3/e.9.5 restano nel dizionario ma
+   spariscono dalla vista in quello stesso caso (escludi_se_integrato_da_fase), perché il loro contenuto è confluito
+   in e/f (esterno) o non ha più senso (interno, art. 44 c.4: la progettazione esecutiva è affidata al contraente).
+   voceVisibile() accentra questa logica così che vociVisibili() e qualunque somma di sotto-voci (proiezione(),
+   aggiornaTotali()) restino coerenti tra loro. ---- */
+function voceVisibile(x,faseRifIdx){
+  if(!x) return false;
+  const integrato=db.testata.modalita_affidamento==="appalto_integrato";
+  if(x.solo_se_integrato_da_fase) return integrato&&faseRifIdx>=faseIdx(x.solo_se_integrato_da_fase);
+  if(x.escludi_se_integrato_da_fase&&integrato&&faseRifIdx>=faseIdx(x.escludi_se_integrato_da_fase)) return false;
+  if(!x.sotto_voce_di) return true;
+  const madre=db.dizionario_voci.find(m=>m.key===x.sotto_voce_di);
+  return !!(madre&&disaggAttiva(madre,faseRifIdx));
+}
+function vociVisibili(faseRifIdx){
+  return db.dizionario_voci.filter(x=>voceVisibile(x,faseRifIdx));
+}
+const EVENTI_LBL = {STIMA_INIZIALE:"Stima iniziale",AFFINAMENTO_STIMA:"Affinamento stima",CONSOLIDAMENTO_QE:"Consolidamento QE",
+  REVISIONE_POST_GARA:"Revisione post-gara",MODIFICA_QE:"Modifica QE",REVISIONE_PREZZI:"Revisione prezzi (art. 60)",
+  VARIANTE_120:"Variante ex art. 120 c.1 lett. a)",RICONCILIAZIONE_QE:"Riconciliazione QE",
+  NOMINA:"Nomina",CESSAZIONE_INCARICO:"Cessazione incarico",RETTIFICA:"Rettifica",CHIUSURA_FASE:"Chiusura fase (snapshot)"};
+function eventiAmmessi(fase){
+  const integrato=db.testata.modalita_affidamento==="appalto_integrato";
+  switch(fase){
+    case "TRI": return ["STIMA_INIZIALE","AFFINAMENTO_STIMA"];
+    case "ANN": return ["AFFINAMENTO_STIMA"];
+    case "PFTE": return ["AFFINAMENTO_STIMA","CONSOLIDAMENTO_QE"];
+    case "PE": return integrato?["MODIFICA_QE"]:["AFFINAMENTO_STIMA","CONSOLIDAMENTO_QE"];
+    case "AGG": return ["REVISIONE_POST_GARA"];
+    case "ESEC_SAL": case "ESEC_SF": return ["REVISIONE_PREZZI","VARIANTE_120"];
+    case "COLL": return ["REVISIONE_PREZZI","VARIANTE_120","RICONCILIAZIONE_QE"];
+    case "CHIU": return ["RICONCILIAZIONE_QE"];
+  }
+  return [];
+}
+function statoQeDiFase(f){
+  const integrato=db.testata.modalita_affidamento==="appalto_integrato";
+  if(f==="TRI"||f==="ANN"||f==="PFTE") return "previsionale";
+  if(f==="PE") return integrato?"assestato":"previsionale";
+  if(f==="AGG") return "assestato";
+  if(f==="ESEC_SAL"||f==="ESEC_SF") return "rimodulato";
+  return "finale";
+}
+/* dal 15-7-2026 (segnalato da Mauro): "rp_progesec" e "rp_affidamento" sono due figure distinte dal RUP/DEC,
+   ciascuna con una sola persona in carica in un dato momento (a differenza del progettista, che può avere più
+   nominati contemporaneamente su livelli diversi) — trattate quindi come RUP/DEC: un solo soggetto in carica,
+   autofill diretto in autofillResp() (nessuna modifica a quella funzione: il ramo "else" è già generico su
+   qualunque ruolo). */
+const RUOLI = [["rup","RUP"],["dec","DEC"],["rp_progesec","RP progettazione ed esecuzione"],["rp_affidamento","RP affidamento"],["supporto_rup","Supporto al RUP"],["progettista","Progettista"],["verificatore","Verificatore"],["dl","DL"],["cse","CSE"],["collaudatore_ta","Collaudatore tecnico-amm."],["collaudatore_statico","Collaudatore statico"],["collaudatore_specialistico","Collaudatore specialistico"],["cct","Collegio consultivo tecnico"]];
+/* dal 15-7-2026 (richiesta da Mauro): categoria usata per auto-determinare "Soggetta L. 717/1949" — coerente con
+   le esclusioni citate dal libro (§3.2.16, testo dell'art. 1 della legge): edifici industriali ed edilizia
+   residenziale pubblica esclusi per espressa previsione; le opere infrastrutturali escluse perché la norma parla
+   di "edifici", non di "opere"/"costruzioni" in generale. Solo "altri edifici pubblici" resta soggetto. */
+const TIPOLOGIA_INTERVENTO=[["edifici_residenziali_pubblici","Edifici residenziali pubblici"],["edifici_industriali","Edifici industriali"],["infrastrutture","Infrastrutture"],["altri_edifici_pubblici","Altri edifici pubblici"]];
+const RTI_AMMESSO = ["progettista","dl","verificatore"];
+const COMMISSIONE_AMMESSA = ["collaudatore_ta","collaudatore_statico","collaudatore_specialistico","cct"];
+const ATTO_TIPI = ["Determinazione dirigenziale","Deliberazione organo amministrativo","Determina di affidamento diretto","Determina di aggiudicazione"];
+const FONTI_CATALOGO = {
+ "1":{label:"1. Fonti pubbliche nazionali ed europee",voci:["Fondi europei a gestione diretta","Fondi europei a gestione concorrente (FESR, FSE+)","Stanziamenti di bilancio statali","Fondi di coesione nazionali (FSC)","Bilancio proprio dell'ente","Oneri di urbanizzazione"]},
+ "2":{label:"2. Fonti da indebitamento (capitale di debito)",voci:["Mutui Cassa Depositi e Prestiti (CDP)","Mutui bancari ordinari","BOC, BOR, BOP (titoli obbligazionari)","Prestiti BEI"]},
+ "3":{label:"3. Fonti private e miste (partenariato pubblico-privato)",voci:["Finanza di progetto (project financing)","Concessione di costruzione e gestione","Locazione finanziaria (leasing immobiliare pubblico)","Contratto di disponibilità","Sponsorizzazioni","Crowdfunding civico"]}
+};
+/* Gli eventi disponibili nel menù dipendono dalla fase corrente (eventiAmmessi); NOMINA/CESSAZIONE/RETTIFICA/CHIUSURA_FASE sono generati dalle azioni dell'app. */
+function vociBase(){ return [
+ v("a","a","Lavori (a misura / a corpo motivato)","A","additiva",true),
+ v("MAN","MAN","di cui costo manodopera (art. 41 c.14) — incluso in a","A","di_cui",false),
+ /* Appalto integrato, da PFTE (v0.11, 14-7-2026; rinominate da "e"/"f" a "a.1"/"a.2" il 14-7-2026 su richiesta di
+    Mauro, per non sovrapporsi alla lettera "e)" già usata dalla norma per l'intero Quadro B — v. CHANGELOG):
+    la progettazione esecutiva e il relativo coordinamento sicurezza sono affidati al contraente insieme
+    all'esecuzione (art. 44 c.4 D.Lgs. 36/2023: l'offerta indica distintamente il corrispettivo per progettazione
+    ed esecuzione) e diventano perciò voci di Quadro A soggette a ribasso, non più spese tecniche di Quadro B.
+    Visibili solo se modalita_affidamento="appalto_integrato" e fase>=PFTE (vedi voceVisibile()); sotto_voce_di:"a"
+    è puramente cosmetico (indentazione sotto "a"/MAN), non attiva la logica di somma nella madre: voceVisibile()
+    verifica solo_se_integrato_da_fase PRIMA di guardare sotto_voce_di, quindi non c'è alcun legame di calcolo con
+    "a" — a.1/a.2 restano voci indipendenti, sommate a parte in RIB_KEYS_ING. Le corrispondenti sotto-voci
+    e.8.3/e.8.5 (esterno) e e.9.3/e.9.5 (interno) restano nel dizionario ma vengono escluse dalla vista con lo
+    stesso meccanismo (escludi_se_integrato_da_fase). */
+ Object.assign(v("a.1","a","Redazione del progetto esecutivo — servizi di ingegneria (soggetta a ribasso)","A","additiva",true,"a"),{solo_se_integrato_da_fase:"PFTE"}),
+ Object.assign(v("a.2","a","Coordinamento della sicurezza in fase di progettazione esecutiva — servizi di ingegneria (soggetto a ribasso)","A","additiva",true,"a"),{solo_se_integrato_da_fase:"PFTE"}),
+ v("b","b","Costi della sicurezza (non ribassabili)","A","additiva",false),
+ v("c","c","Aliquota prevenzione/repressione criminalità (non ribassabile)","A","additiva",false),
+ v("d","d","Opere di mitigazione e compensazione ambientale (max 2%)","A","additiva",true),
+ v("e.1","e.1","Lavori in amministrazione diretta","B","additiva",false),
+ v("e.2","e.2","Rilievi, accertamenti e indagini (SA)","B","additiva",false),
+ v("e.3","e.3","Rilievi, accertamenti e indagini (progettista)","B","additiva",false),
+ v("e.4","e.4","Allacciamenti e interferenze","B","additiva",false),
+ v("e.5","e.5","Imprevisti (5–10%, comma 2)","B","additiva",false),
+ v("e.6","e.6","Accantonamenti artt. 60 e 120","B","additiva",false),
+ v("e.7","e.7","Acquisizione aree/immobili, indennizzi","B","additiva",false),
+ Object.assign(v("e.8","e.8","Spese tecniche — funzioni affidate all'esterno","B","additiva",false),{disaggregazione:{da_fase:"PFTE",sotto_voci:["e.8.1","e.8.2","e.8.3","e.8.4","e.8.5","e.8.6","e.8.7","e.8.8","e.8.9","e.8.10"]}}),
+ v("e.8.1","e.8","Supporto al RUP","B","additiva",false,"e.8"),
+ v("e.8.2","e.8","Redazione del progetto di fattibilità tecnica ed economica","B","additiva",false,"e.8"),
+ Object.assign(v("e.8.3","e.8","Redazione del progetto esecutivo","B","additiva",false,"e.8"),{escludi_se_integrato_da_fase:"PFTE"}),
+ v("e.8.4","e.8","Coordinamento per la sicurezza in fase di PFTE","B","additiva",false,"e.8"),
+ Object.assign(v("e.8.5","e.8","Coordinamento per la sicurezza in fase di PE","B","additiva",false,"e.8"),{escludi_se_integrato_da_fase:"PFTE"}),
+ v("e.8.6","e.8","Verifica del progetto ai fini della sua validazione","B","additiva",false,"e.8"),
+ v("e.8.7","e.8","Predisposizione dei documenti di gara","B","additiva",false,"e.8"),
+ v("e.8.8","e.8","Direzione dei lavori","B","additiva",false,"e.8"),
+ v("e.8.9","e.8","Ufficio di direzione dei lavori (direttore/i operativo/i, ispettore/i di cantiere)","B","additiva",false,"e.8"),
+ v("e.8.10","e.8","Coordinamento della sicurezza in fase di esecuzione","B","additiva",false,"e.8"),
+ Object.assign(v("e.9","e.9","Spese tecniche — personale interno e attività tecnico-amministrative","B","additiva",false),{disaggregazione:{da_fase:"PFTE",sotto_voci:["e.9.1","e.9.2","e.9.3","e.9.4","e.9.5","e.9.6","e.9.7","e.9.8","e.9.9","e.9.10","e.9.11","e.9.12"]}}),
+ v("e.9.1","e.9","Attività di direzione dell'esecuzione (DEC e collaboratori)","B","additiva",false,"e.9"),
+ v("e.9.2","e.9","Redazione del progetto di fattibilità tecnica ed economica","B","additiva",false,"e.9"),
+ Object.assign(v("e.9.3","e.9","Redazione del progetto esecutivo","B","additiva",false,"e.9"),{escludi_se_integrato_da_fase:"PFTE"}),
+ v("e.9.4","e.9","Coordinamento per la sicurezza in fase di PFTE","B","additiva",false,"e.9"),
+ Object.assign(v("e.9.5","e.9","Coordinamento per la sicurezza in fase di PE","B","additiva",false,"e.9"),{escludi_se_integrato_da_fase:"PFTE"}),
+ v("e.9.6","e.9","Verifica del progetto ai fini della sua validazione","B","additiva",false,"e.9"),
+ v("e.9.7","e.9","Predisposizione dei documenti di gara","B","additiva",false,"e.9"),
+ v("e.9.8","e.9","Direzione dei lavori","B","additiva",false,"e.9"),
+ v("e.9.9","e.9","Ufficio di direzione dei lavori (direttore/i operativo/i, ispettore/i di cantiere)","B","additiva",false,"e.9"),
+ v("e.9.10","e.9","Coordinamento della sicurezza in fase di esecuzione","B","additiva",false,"e.9"),
+ v("e.9.11","e.9","Supporto al RUP (personale dipendente)","B","additiva",false,"e.9"),
+ v("e.9.12","e.9","Assicurazione dei progettisti dipendenti","B","additiva",false,"e.9"),
+ Object.assign(v("e.10","e.10","Spese art. 45 cc. 6-7 (max 0,4%)","B","additiva",false),{disaggregazione:{da_fase:"PFTE",sotto_voci:["e.10.1","e.10.2","e.10.3","e.10.4"]}}),
+ v("e.10.1","e.10","Beni e tecnologie funzionali a progetti di innovazione","B","additiva",false,"e.10"),
+ v("e.10.2","e.10","Attività di formazione per l'incremento delle competenze digitali del personale","B","additiva",false,"e.10"),
+ v("e.10.3","e.10","Specializzazione del personale che svolge funzioni tecniche","B","additiva",false,"e.10"),
+ v("e.10.4","e.10","Oneri di assicurazione obbligatoria del personale","B","additiva",false,"e.10"),
+ v("e.11","e.11","Commissioni giudicatrici","B","additiva",false),
+ v("e.12","e.12","Pubblicità","B","additiva",false),
+ v("e.13","e.13","Prove di laboratorio e verifiche tecniche","B","additiva",false),
+ Object.assign(v("e.14","e.14","Collaudi (t.-a., statico, specialistici)","B","additiva",false),{disaggregazione:{da_fase:"PFTE",sotto_voci:["e.14.1","e.14.2","e.14.3"]}}),
+ v("e.14.1","e.14","Collaudo tecnico-amministrativo","B","additiva",false,"e.14"),
+ v("e.14.2","e.14","Collaudo statico","B","additiva",false,"e.14"),
+ v("e.14.3","e.14","Collaudi funzionali specialistici","B","additiva",false,"e.14"),
+ v("e.15","e.15","Verifica preventiva interesse archeologico","B","additiva",false),
+ Object.assign(v("e.16","e.16","Rimedi alternativi alla tutela giurisdizionale","B","additiva",false),{disaggregazione:{da_fase:"PFTE",sotto_voci:["e.16.1","e.16.2","e.16.3","e.16.4","e.16.5"]}}),
+ v("e.16.1","e.16","Spese per accordi bonari","B","additiva",false,"e.16"),
+ v("e.16.2","e.16","Spese per transazioni","B","additiva",false,"e.16"),
+ v("e.16.3","e.16","Spese per Collegio consultivo tecnico (CCT)","B","additiva",false,"e.16"),
+ v("e.16.4","e.16","Spese per parere di precontenzioso ANAC","B","additiva",false,"e.16"),
+ v("e.16.5","e.16","Spese per lodi arbitrali","B","additiva",false,"e.16"),
+ v("e.17","e.17","Opere artistiche L. 717/1949","B","additiva",false),
+ Object.assign(v("e.18","e.18","IVA ed eventuali altre imposte","B","additiva",false),{disaggregazione:{da_fase:"PFTE",sotto_voci:["e.18.1","e.18.2","e.18.3","e.18.4","e.18.5","e.18.6","e.18.7"]}}),
+ v("e.18.1","e.18","IVA su voci assoggettate all'aliquota del 4%","B","additiva",false,"e.18"),
+ v("e.18.2","e.18","IVA su voci assoggettate all'aliquota del 10%","B","additiva",false,"e.18"),
+ v("e.18.3","e.18","IVA su voci assoggettate all'aliquota del 22%","B","additiva",false,"e.18"),
+ v("e.18.4","e.18","Rivalsa contributi cassa professionisti ingegneria e architettura","B","additiva",false,"e.18"),
+ v("e.18.5","e.18","Rivalsa contributi cassa professionisti forensi","B","additiva",false,"e.18"),
+ v("e.18.6","e.18","Rivalsa contributi cassa altri professionisti","B","additiva",false,"e.18"),
+ v("e.18.7","e.18","Contributo ANAC","B","additiva",false,"e.18"),
+ v("ECO","ECO","Economie da ribasso","B","additiva",false),
+ Object.assign(v("ECO_ING","ECO_ING","Economie da ribasso sui servizi di ingegneria (e+f)","B","additiva",false),{solo_se_integrato_da_fase:"PFTE"})
+];}
+function v(key,codice,descrizione,quadro,natura,rib,sottoDi){ const o={key,codice,descrizione,quadro,natura,ribassabile:rib,aliquota_iva:22}; if(sottoDi) o.sotto_voce_di=sottoDi; return o; }
+
+/* Rimandi al testo "M. Moroni, C. Mazza - Il QE dell'opera pubblica", cap. 3 (v0.10, 13-7-2026).
+   Costruiti leggendo per intero il capitolo 3 e incrociandolo voce per voce col dizionario. Dove il libro tratta più
+   sotto-voci dell'app in un unico paragrafo (nessuna sotto-articolazione nel testo), si rimanda a quel paragrafo comune —
+   per esplicita indicazione di Mauro: tutte le e.8.* rimandano a §3.2.6, tutte le e.9.* a §3.2.7 tranne e.9.12 (§3.2.8). */
+const PARAGRAFO_LIBRO={
+  "a":"3.1.1","MAN":"3.1.1.1","b":"3.1.2","c":"3.1.3","d":"3.1.4",
+  "e.1":"3.2.1","e.2":"3.2.2.1","e.3":"3.2.2.2","e.4":"3.2.3","e.5":"3.2.1","e.6":"3.2.4","e.7":"3.2.5",
+  "e.8":"3.2.6","e.8.1":"3.2.6","e.8.2":"3.2.6","e.8.3":"3.2.6","e.8.4":"3.2.6","e.8.5":"3.2.6","e.8.6":"3.2.6","e.8.7":"3.2.6","e.8.8":"3.2.6","e.8.9":"3.2.6","e.8.10":"3.2.6",
+  "e.9":"3.2.7","e.9.1":"3.2.7","e.9.2":"3.2.7","e.9.3":"3.2.7","e.9.4":"3.2.7","e.9.5":"3.2.7","e.9.6":"3.2.7","e.9.7":"3.2.7","e.9.8":"3.2.7","e.9.9":"3.2.7","e.9.10":"3.2.7","e.9.11":"3.2.7","e.9.12":"3.2.8",
+  "e.10":"3.2.8","e.10.1":"3.2.8.1","e.10.2":"3.2.8.2","e.10.3":"3.2.8.3","e.10.4":"3.2.8.4",
+  "e.11":"3.2.9","e.12":"3.2.10","e.13":"3.2.12",
+  "e.14":"3.2.11","e.14.1":"3.2.11.1","e.14.2":"3.2.11.2","e.14.3":"3.2.11.3",
+  "e.15":"3.2.14",
+  "e.16":"3.2.15","e.16.1":"3.2.15","e.16.2":"3.2.15","e.16.3":"3.2.15","e.16.4":"3.2.15","e.16.5":"3.2.15",
+  "e.17":"3.2.16",
+  "e.18":"3.2.17","e.18.1":"3.2.17.1","e.18.2":"3.2.17.2","e.18.3":"3.2.17.3","e.18.4":"3.2.17.4","e.18.5":"3.2.17.5","e.18.6":"3.2.17.6","e.18.7":"3.2.17.7",
+  "ECO":"3.3",
+  /* v0.11 (14-7-2026), appalto integrato: a.1/a.2 (ex e/f, rinominate il 14-7-2026) citano gli stessi paragrafi
+     che discutono esplicitamente il loro spostamento in Quadro A (redazione PE affidata al contraente; CSP-PE che
+     deve integrarsi col suo gruppo di progettazione), più precisi della citazione generica riservata a e.8.x /
+     e.9.x (3.2.6 / 3.2.7). ECO_ING rimanda al paragrafo che tratta proprio il doppio ribasso dell'appalto integrato. */
+  "a.1":"3.2.7.3","a.2":"3.2.7.4","ECO_ING":"3.3.2"
+};
+function iconaInfo(key){
+  const par=PARAGRAFO_LIBRO[key];
+  if(!par) return "";
+  return ' <span class="info-ico" title="'+esc('Per approfondimenti vai al § '+par+' del testo: "M. Moroni, C. Mazza - Il QE dell\'opera pubblica"')+'">i</span>';
+}
+
+/* ====== STATO ====== */
+/* Versione dell'applicazione: unica fonte di verità. Da aggiornare a ogni rilascio.
+   Distinta da schema_version, che identifica la struttura dati del file .json e cambia
+   solo quando cambia il formato. */
+const APP_VERSION="1.00";
+let db=null, tabAtt="testata", soggettoInEdit=null;
+
+function nuovoDb(){ return {
+  schema_version:"1.2",
+  app_version_creazione:APP_VERSION,
+  app_version_ultimo_salvataggio:APP_VERSION,
+  testata:{cui:null,cup:null,cig_principale:null,nickname:"",denominazione:"",descrizione_opera:"",
+    stazione_appaltante:{denominazione:"",ufficio_o_settore:"",citta:""},
+    sopra_soglia_ue:null,
+    modalita_affidamento:"appalto_ordinario",contratto:"a_misura",motivazione_a_corpo:"",
+    tipologia_intervento:"",soggetta_L717:"",motivazione_L717:"",importo_stimato:0,fase_corrente:"TRI",presentazione:""},
+  soggetti:[],fonti_finanziamento:[],dizionario_voci:vociBase(),
+  registro_eventi:[],snapshot:[],parametri:{},
+  lineage:{id_file:(crypto.randomUUID?crypto.randomUUID():String(Date.now())),contatore_eventi:0},
+  bozza_evento:null
+};}
+
+/* ====== UTILITÀ ====== */
+const $=id=>document.getElementById(id);
+function fmtData(x){ if(!x)return""; const m=/^([0-9]{4})-([0-9]{2})-([0-9]{2})/.exec(x); return m?m[3]+"/"+m[2]+"/"+m[1]:x; }
+function eur(n){ return (n||0).toLocaleString("it-IT",{minimumFractionDigits:2,maximumFractionDigits:2})+" €"; }
+function fmtN(n){ return (n||0).toLocaleString("it-IT",{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function parseIt(s){ if(typeof s!=="string") return +s||0; s=s.trim(); if(!s) return 0; return parseFloat(s.replace(/\./g,"").replace(",","."))||0; }
+function fmtNum(el){ el.value=el.value.trim()?fmtN(parseIt(el.value)):""; }
+function tipoLbl(t){ return ({persona_singola:"persona singola",societa:"società",rti:"RTI",commissione:"commissione"})[t]||t; }
+function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+async function sha256(str){ const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(str)); return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join(""); }
+function nomeFile(){ const t=db.testata; return "QE_"+(t.cup&&t.cup.trim()?t.cup.trim():"CUP_DA_DEFINIRE")+"_"+(t.nickname||"SENZANOME")+".json"; }
+
+/* ====== PROIEZIONE ====== */
+function proiezione(eventi,faseRif){
+  const ev0=eventi||db.registro_eventi;
+  const fr=(faseRif!=null)?faseRif:faseMax(ev0);
+  const st={}, imp={}, liq={}, nec={}, cur={}, fonti={}, stati={}, docRif={}, toccata={}, baseGara={};
+  /* dal 15-7-2026 (richiesto da Mauro): base per il calcolo del contributo ANAC (e.18.7) — l'importo totale
+     dell'appalto (a+b+c+d, +a.1+a.2 se integrato) va aggiornato liberamente fino alla chiusura di F.03/PFTE
+     nell'appalto integrato o F.04/PE nell'appalto ordinario, poi congelato (v. chiudiFase()): stesso principio
+     "congelato al primo evento che lo porta" di baseGara, ma scalare (un solo importo, non per-voce) e con un
+     trigger diverso (chiusura fase, non aggiudicazione). */
+  let baseAnac=null;
+  db.dizionario_voci.forEach(x=>{st[x.key]=0;imp[x.key]=0;liq[x.key]=0;nec[x.key]=0;cur[x.key]=0;fonti[x.key]=[];stati[x.key]=[];docRif[x.key]=null;});
+  ev0.forEach(ev=>{
+    (ev.delta||[]).forEach(d=>{
+      if(!(d.voce in st)) st[d.voce]=0, imp[d.voce]=0, liq[d.voce]=0, nec[d.voce]=0, cur[d.voce]=0, fonti[d.voce]=[], docRif[d.voce]=null;
+      if(d.serie==="impegnato") imp[d.voce]+=d.importo;
+      else if(d.serie==="liquidato") liq[d.voce]+=d.importo;
+      else if(d.serie==="necessita") nec[d.voce]+=d.importo; /* retrocompatibilità: file salvati prima della v0.08 */
+      else if(d.serie==="stanziamento") st[d.voce]+=d.importo;
+      /* d.serie null/assente (dalla v0.08): nessuno stato assegnato dall'utente — il movimento è comunque tracciato (delta, fonte) ma non alimenta nessuna delle tre colonne di stato */
+      (ev.fonte||[]).forEach(f=>fonti[d.voce].push({...f,evento:ev.id}));
+      /* Doc. Rif. (v0.09): tiene il documento dell'ultimo evento che ha imputato la voce, coerente con "un solo valore corrente = l'ultimo imputato".
+         Formato di d.doc_rif: numero = indice in ev.fonte DELLO STESSO evento (formato originario, ancora usato per le pezze aggiunte nell'evento in corso);
+         stringa "eventoId:idx" = riferimento a una pezza giustificativa aggiunta in un evento PRECEDENTE (elenco pezze stratificato, dal 13-7-2026). */
+      if(d.doc_rif!=null){
+        if(typeof d.doc_rif==="string"&&d.doc_rif.indexOf(":")!==-1){
+          const [refEvId,refIdx]=d.doc_rif.split(":");
+          const evRif=ev0.find(e=>e.id===+refEvId)||db.registro_eventi.find(e=>e.id===+refEvId);
+          if(evRif&&evRif.fonte&&evRif.fonte[+refIdx]) docRif[d.voce]=evRif.fonte[+refIdx];
+        }else if(ev.fonte&&ev.fonte[d.doc_rif]) docRif[d.voce]=ev.fonte[d.doc_rif];
+      }
+    });
+    if(ev.valori) Object.keys(ev.valori).forEach(k=>{ if(!(k in cur)) cur[k]=0; cur[k]=ev.valori[k]; toccata[k]=true; });
+    /* dal 15-7-2026: base di gara (valori lordi di a/d/a.1/a.2 prima del ribasso) — congelata al PRIMO evento che
+       la porta, mai più risovrascritta ("si compie una sola volta", libro §3.3.1). Usata da valida() per R-01/
+       R-02/R-08/R-09, che devono restare ancorate al lordo anche dopo che a/d/a.1/a.2 diventano nette. */
+    if(ev.base_gara) Object.keys(ev.base_gara).forEach(k=>{ if(!(k in baseGara)) baseGara[k]=ev.base_gara[k]; });
+    if(ev.base_anac!=null&&baseAnac==null) baseAnac=ev.base_anac;
+    if(ev.stati){ Object.keys(ev.stati).forEach(k=>{ stati[k]=(ev.stati[k]||[]).slice(); }); }
+    else{ const m={}; (ev.delta||[]).forEach(d=>{ (m[d.voce]=m[d.voce]||[]).push(d.serie||"stanziamento"); }); Object.keys(m).forEach(k=>{ stati[k]=[...new Set(m[k])]; }); }
+  });
+  /* voci a granularità variabile: da soglia raggiunta, la madre diventa il totale calcolato delle sotto-voci — ma SOLO da quando
+     almeno una sotto-voce è stata effettivamente imputata (corretto il 14-7-2026, segnalato da Mauro). Finché nessuna sotto-voce
+     è mai stata toccata, la madre mantiene l'ultimo valore imputato su di lei (tipicamente una stima forfettaria imputata prima
+     del raggiungimento della soglia di fase): altrimenti sparirebbe dalla vista un accantonamento già fatto. `sommata` espone
+     questa condizione (madre effettivamente sostituita dalle sotto-voci) a totali()/valida()/aggiornaTotali(), che altrimenti
+     rischierebbero di doppio-contare o di perdere silenziosamente la stima forfettaria. */
+  const sommata={};
+  db.dizionario_voci.forEach(x=>{
+    if(disaggAttiva(x,fr)){
+      /* v0.11: nell'appalto integrato alcune sotto-voci (e.8.3/e.8.5/e.9.3/e.9.5) possono essere escluse dalla
+         vista (v. voceVisibile) — non vanno sommate nella madre, sono confluite altrove o non si applicano più. */
+      const sottoVisibili=x.disaggregazione.sotto_voci.filter(k=>voceVisibile(db.dizionario_voci.find(m=>m.key===k),fr));
+      const alcunaSottovoceToccata=sottoVisibili.some(k=>toccata[k]);
+      if(alcunaSottovoceToccata){ cur[x.key]=sottoVisibili.reduce((s,k)=>s+(cur[k]||0),0); sommata[x.key]=true; }
+    }
+  });
+  return {st,imp,liq,nec,cur,fonti,stati,docRif,sommata,baseGara,baseAnac,faseRif:fr};
+}
+function fontiTxt(arr,max){
+  if(!arr||!arr.length) return "";
+  const t=arr.map(f=>[f.tipo_doc,f.codice,f.titolo].filter(Boolean).join(" ")+(f.pagina?" p."+f.pagina:"")+(f.revisione?" rev."+f.revisione:"")+" [ev."+f.evento+"]");
+  return max&&t.length>max ? t.slice(-max).join("; ")+" (+"+(t.length-max)+" precedenti)" : t.join("; ");
+}
+function totali(p){
+  let tot=0, eco=0, ecoIng=0;
+  db.dizionario_voci.forEach(x=>{
+    if(x.natura!=="additiva") return;
+    if(p.sommata[x.key]) return; /* la madre è già sostituita dalla somma delle sotto-voci: evita il doppio conteggio.
+      Se la soglia di fase è superata ma nessuna sotto-voce è ancora stata toccata, la madre NON è in p.sommata e va
+      conteggiata regolarmente col suo valore proprio (stima forfettaria) — v. proiezione(), corretto il 14-7-2026 */
+    if(x.key==="ECO"){ eco=p.cur[x.key]||0; return; }
+    if(x.key==="ECO_ING"){ ecoIng=p.cur[x.key]||0; return; } /* v0.11: seconda economia, ribasso sui servizi di ingegneria (e+f) */
+    tot+=p.cur[x.key]||0;
+  });
+  /* dal 15-7-2026 (segnalato da Mauro, confermato dal libro §3.3/3.3.1): ECO/ECO_ING NON si sottraggono più dal
+     totale qui — dalla correzione in calcolaEco(), il ribasso è già incorporato nel valore corrente (netto) di
+     a/d/a.1/a.2, quindi la somma delle voci additive (tot, sopra) è già al netto. Sottrarre di nuovo eco/ecoIng
+     conterebbe due volte lo stesso ribasso. eco/ecoIng restano tracciate e restituite qui (usate da valida() per
+     ricostruire il costo complessivo al LORDO, R-02) e mostrate come riga a sé a fini di trasparenza/tracciabilità
+     (BDAP/MOP, art. 9/60/120/126 D.Lgs. 36/2023) — non più come deduzione dal totale QE. Prima del 15-7-2026 la
+     riduzione avveniva SOLO qui, a livello aggregato, lasciando a/d/a.1/a.2 al lordo in tabella/copertina: "i conti
+     non tornavano" confrontando le singole voci con il totale (bug segnalato da Mauro in collaudo). */
+  const fonti=db.fonti_finanziamento.reduce((s,f)=>s+(+f.importo||0),0);
+  return {tot,eco,ecoIng,fonti};
+}
+
+/* ====== VALIDAZIONI (doc 03 § 7) ====== */
+function totaliAllo(idEvento){
+  const p=proiezione(db.registro_eventi.filter(ev=>ev.id<=idEvento));
+  return totali(p);
+}
+function valida(p,fase,contestoSnapshot){
+  const B=[],W=[]; const t=totali(p);
+  const S=p.cur;
+  /* dal 15-7-2026: "a" può essere già al netto del ribasso (calcolaEco() la riscrive al momento dell'aggiudicazione,
+     v. p.baseGara) — R-01/R-08/R-09 restano ancorate al LORDO/base di gara, come già confermato il 14-7-2026 ("le
+     soglie normative si riferiscono all'importo lavori/costo complessivo dell'appalto, non a un valore post-ribasso").
+     p.baseGara.a è la "a" congelata al momento del (primo) ribasso; prima dell'aggiudicazione non esiste ancora,
+     quindi si usa il valore corrente (che a quel punto coincide col lordo, nessun ribasso ancora applicato). */
+  const grossA=(p.baseGara&&p.baseGara.a!=null)?p.baseGara.a:(S["a"]||0);
+  const base=grossA+(S["b"]||0); // lavori a base di gara incl. sicurezza
+  let totQE=0; db.dizionario_voci.forEach(x=>{ if(x.natura==="additiva"&&!p.sommata[x.key]&&x.key!=="ECO"&&x.key!=="ECO_ING") totQE+=S[x.key]||0; });
+  if(base>0){
+    const e5=S["e.5"]||0,e1=S["e.1"]||0;
+    /* dal 15-7-2026 (richiesto da Mauro): l'imprevisto sotto-soglia è l'UNICA condizione di questa funzione che blocca
+       SEMPRE, fin dal primo evento che valorizza "a"/"b" — non solo in chiusura di fase come le altre. Motivo: gli
+       imprevisti non devono mai essere trascurati nemmeno in una stima iniziale di bozza. Le altre regole qui sotto
+       (R-01 eccesso e.1+e.5, R-08, R-02) restano avvertenze sui singoli eventi, bloccanti solo a chiusura fase. */
+    if(e5<0.05*base) B.push("R-01: imprevisti e.5 ("+eur(e5)+") sotto il 5% dei lavori a base di gara ("+eur(0.05*base)+")");
+    if(e1+e5>0.10*base) (contestoSnapshot?B:W).push("R-01: e.1+e.5 ("+eur(e1+e5)+") oltre il 10% dei lavori a base di gara");
+    const interno=(S["e.9"]||0);
+    if(interno>0.016*base) (contestoSnapshot?B:W).push("R-08: e.9 ("+eur(interno)+") oltre l'1,6% dei lavori a base di gara");
+    if((S["e.10"]||0)>0.004*base) (contestoSnapshot?B:W).push("R-09: e.10 ("+eur(S["e.10"])+") oltre lo 0,4% dei lavori a base di gara");
+  }
+  /* dal 15-7-2026: stessa ragione di "base" sopra — R-02 confronta "d" col costo complessivo, entrambi al LORDO.
+     totQE (sopra) è già al netto una volta applicato il ribasso (somma S[x.key], e S["a"]/S["d"]/S["a.1"]/S["a.2"]
+     sono nette da calcolaEco()); si ricostruisce il lordo aggiungendo eco+ecoIng (t=totali(p), riga precedente),
+     esattamente le somme sottratte a monte da a/d/a.1/a.2 — relazione che vale per costruzione, essendo la stessa
+     percentuale unica applicata sia all'aggregato (ECO/ECO_ING) sia alle singole voci. */
+  const grossD=(p.baseGara&&p.baseGara.d!=null)?p.baseGara.d:(S["d"]||0);
+  const totQEGross=totQE+(t.eco||0)+(t.ecoIng||0);
+  if(totQEGross>0&&grossD>0.02*totQEGross) (contestoSnapshot?B:W).push("R-02: voce d ("+eur(grossD)+") oltre il 2% del costo complessivo ("+eur(totQEGross)+")");
+  if(db.testata.contratto!=="a_misura"&&!db.testata.motivazione_a_corpo.trim()&&faseIdx(fase)>=faseIdx("PFTE"))
+    B.push("R-13: contratto a corpo/misto senza motivazione espressa (art. 5 c.1 lett. a)");
+  db.dizionario_voci.forEach(x=>{ if(x.natura==="additiva"&&!p.sommata[x.key]&&(S[x.key]||0)<-0.005) B.push("Voce "+x.key+" negativa ("+eur(S[x.key])+")"); });
+  return {B,W};
+}
+
+/* ====== EVENTI ====== */
+async function appendEvento(ev){
+  const prev=db.registro_eventi.length?db.registro_eventi[db.registro_eventi.length-1].hash:"GENESI";
+  ev.id=db.lineage.contatore_eventi+1;
+  ev.timestamp=new Date().toISOString();
+  ev.prev_hash=prev;
+  const copia={...ev}; delete copia.hash;
+  ev.hash=await sha256(prev+JSON.stringify(copia));
+  db.registro_eventi.push(ev);
+  db.lineage.contatore_eventi=ev.id;
+  db.lineage.hash_ultimo_evento=ev.hash;
+}
+async function verificaCatena(){
+  let prev="GENESI";
+  for(const ev of db.registro_eventi){
+    if(ev.prev_hash!==prev) return "R-19: catena interrotta all'evento #"+ev.id;
+    const copia={...ev}; delete copia.hash;
+    if(await sha256(prev+JSON.stringify(copia))!==ev.hash) return "R-19: hash non valido all'evento #"+ev.id;
+    prev=ev.hash;
+  }
+  return null;
+}
+
+/* ====== FILE ====== */
+function nuovoFile(){
+  if(db&&!confirm("Creare una nuova opera? I dati non salvati andranno persi."))return;
+  db=nuovoDb();
+  const nick=prompt("Nickname dell'opera (max 10 caratteri, senza spazi).\nEntra nel nome del file: QE_<CUP>_<nickname>.json");
+  if(nick!==null) db.testata.nickname=nick.replace(/\s/g,"").slice(0,10);
+  tabAtt="testata"; render();
+}
+function apriFile(f){
+  if(!f)return;
+  const r=new FileReader();
+  r.onload=async e=>{
+    try{
+      db=JSON.parse(e.target.result);
+      if(db.schema_version!=="1.2"){alert("Versione schema non supportata: "+db.schema_version+" (i file di prova precedenti vanno ricreati con lo schema 1.2).");db=null;return;}
+      if(!("bozza_evento" in db)) db.bozza_evento=null;
+      /* dal 15-7-2026 (richiesto da Mauro): soggetta_L717 passa da booleano a stringa a tre stati ("", "si", "no"),
+         per distinguere "non ancora deciso" da "no" esplicito. File salvati prima di questa modifica hanno un
+         booleano: convertito qui in lettura, nessun cambio di schema_version (stessa tolleranza già usata sopra
+         per bozza_evento). Nuovo campo tipologia_intervento, assente nei file vecchi: default "". */
+      if(typeof db.testata.soggetta_L717==="boolean") db.testata.soggetta_L717=db.testata.soggetta_L717?"si":"no";
+      if(!("tipologia_intervento" in db.testata)) db.testata.tipologia_intervento="";
+      const err=await verificaCatena();
+      if(err) alert("ATTENZIONE — "+err+"\nIl file potrebbe essere stato alterato o essere una copia divergente.");
+      tabAtt="testata"; render();
+    }catch(ex){alert("File non valido: "+ex.message);}
+  };
+  r.readAsText(f); $("inApri").value="";
+}
+async function salvaFile(){
+  if(!db)return alert("Nessuna opera aperta.");
+  leggiTestata();
+  if(!db.testata.nickname){alert("Nickname obbligatorio (max 10 caratteri): serve per il nome del file.");return;}
+  /* Traccia la versione dell'applicazione che ha scritto il file per ultima: serve a ricondurre
+     un file (e un'eventuale anomalia segnalata) alla build che lo ha prodotto. I file creati con
+     versioni anteriori all'introduzione del campo restano privi di app_version_creazione. */
+  db.app_version_ultimo_salvataggio=APP_VERSION;
+  const blob=new Blob([JSON.stringify(db,null,1)],{type:"application/json"});
+  if(window.showSaveFilePicker){
+    try{
+      const h=await showSaveFilePicker({suggestedName:nomeFile(),types:[{description:"File opera QE",accept:{"application/json":[".json"]}}]});
+      const w=await h.createWritable(); await w.write(blob); await w.close();
+      $("hNomeFile").textContent=nomeFile(); return;
+    }catch(ex){ if(ex.name==="AbortError")return; }
+  }
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=nomeFile(); a.click();
+  $("hNomeFile").textContent=nomeFile();
+}
+
+/* ====== RENDER ====== */
+const TABS=[["testata","Dati generali di base"],["soggetti","Soggetti"],["registro","Registro eventi"],["snap","Snapshot e chiusura fase"],["export","Esporta"]];
+function render(){
+  $("tabs").innerHTML=TABS.map(t=>'<button class="'+(t[0]===tabAtt?"att":"")+'" onclick="cambiaTab(\''+t[0]+'\')">'+t[1]+"</button>").join("");
+  $("hNomeFile").textContent=db?nomeFile():"nessun file aperto";
+  if(!db){$("vista").innerHTML='<div class="card"><h2>Benvenuto</h2><p>Crea una <b>nuova opera</b> o <b>apri</b> un file QE esistente (.json).</p></div>';return;}
+  ({testata:rTestata,soggetti:rSoggetti,registro:rRegistro,snap:rSnap,export:rExport})[tabAtt]();
+}
+function cambiaTab(t){ if(db&&tabAtt==="testata")leggiTestata(); soggettoInEdit=null; tabAtt=t; render(); }
+
+/* ---- Testata ---- */
+function rTestata(){
+  const t=db.testata;
+  $("vista").innerHTML=
+  '<div class="card"><h2>Dati sintetici salienti dell’opera</h2><div class="griglia">'+
+   campo("tNick","Nickname (max 10)",t.nickname)+
+   campo("tCui","CUI",t.cui||"")+
+   campo("tCup","CUP (rinomina il file)",t.cup||"")+
+   campo("tCig","CIG principale (imputare quando disponibile)",t.cig_principale||"")+
+   campo("tDen","Denominazione dell'opera (titolo breve)",t.denominazione)+
+   '<div><label>Soglia europea</label><div class="radio-riga"><label><input type="radio" name="tSoglia" value="sopra"'+(t.sopra_soglia_ue==="sopra"?" checked":"")+'> sopra soglia UE</label><label><input type="radio" name="tSoglia" value="sotto"'+(t.sopra_soglia_ue==="sotto"?" checked":"")+'> sotto soglia UE</label></div></div>'+
+   campo("tFaseView","Fase corrente (avanza con «Chiudi fase»)",faseLbl(t.fase_corrente),true)+
+   sel("tMod","Tipologia di appalto",[["appalto_ordinario","appalto ordinario"],["appalto_integrato","appalto integrato"]],t.modalita_affidamento)+
+   sel("tContr","Contratto",[["a_misura","a misura"],["a_corpo","a corpo (motivare)"],["misto","misto (motivare)"]],t.contratto)+
+   campoArea("tMotC","Motivazione a corpo",t.motivazione_a_corpo,"Riferimenti al documento di progetto in cui è depositata la motivazione (quasi sempre il CSA parte amministrativa): codice elaborato, articolo/paragrafo")+
+   campo("tImp","Importo stimato (€)",t.importo_stimato?fmtN(t.importo_stimato):"",false,"es. 4.200.000,00",'onblur="fmtNum(this)"')+
+   sel("tTipoInt","Tipologia dell'intervento",TIPOLOGIA_INTERVENTO,t.tipologia_intervento,"selezionare la tipologia dell'intervento",'onchange="aggiornaSoggettaL717Auto()"')+
+   sel("tL717","Soggetta L. 717/1949",[["si","Sì"],["no","No"]],t.soggetta_L717,"--")+
+   campoArea("tMotL","Motivazione se non soggetta alla L. 717/1949 (≥ 1 M€)",t.motivazione_L717,"Riferimenti al documento di progetto in cui è depositata la motivazione: codice elaborato, articolo/paragrafo")+
+   campo("tSaDen","Stazione appaltante — denominazione",t.stazione_appaltante.denominazione)+
+   campo("tSaUff","Stazione appaltante — ufficio o settore",t.stazione_appaltante.ufficio_o_settore)+
+   campo("tSaCit","Stazione appaltante — città",t.stazione_appaltante.citta)+
+  '</div><div style="margin-top:10px"><label>Descrizione dell’opera</label><textarea id="tDesc">'+esc(t.descrizione_opera)+'</textarea>'+
+  '<label style="margin-top:8px">Presentazione del QE (testo introduttivo della copertina)</label><textarea id="tPres" placeholder="Descrivere i principi di formazione del QE: da quali documenti derivano gli importi (CME, PSC, calcoli dei corrispettivi…), i criteri di stima adottati nella fase corrente, le scelte rilevanti (aliquote IVA, accantonamenti, regime delle economie). È l\'unico testo libero della copertina: tutti gli altri dati sono generati dall\'app.">'+esc(t.presentazione)+"</textarea></div></div>"+
+  '<div class="card"><h2>Fonti di finanziamento</h2><table><thead><tr><th>Id</th><th>Tipologia della fonte</th><th>Fonte</th><th>Ente erogatore</th><th class="num">Importo</th><th>Economie riutilizzabili</th><th>Vincoli</th><th></th></tr></thead><tbody>'+
+   db.fonti_finanziamento.map((f,i)=>"<tr><td>"+esc(f.id_fonte)+"</td><td>"+esc(f.tipologia_fonte||"")+"</td><td>"+esc(f.descrizione)+"</td><td>"+esc(f.ente_erogatore)+'</td><td class="num">'+eur(+f.importo)+"</td><td>"+esc(f.economie_riutilizzabili)+"</td><td>"+esc(f.vincoli)+'</td><td><button class="sec" onclick="rmFonte('+i+')">Elimina</button></td></tr>').join("")+
+  '</tbody></table><div class="griglia" style="margin-top:10px">'+
+   '<div><label>Tipologia della fonte</label><select id="fTipo" onchange="aggiornaFonteSel()"><option value="">— selezionare la tipologia… —</option>'+Object.keys(FONTI_CATALOGO).map(k=>'<option value="'+k+'">'+FONTI_CATALOGO[k].label+"</option>").join("")+'</select></div>'+
+   '<div><label>Fonte</label><select id="fFonte" onchange="fonteAltro()"></select></div>'+
+   '<div id="fAltroBox" style="display:none"><label>Descrizione della fonte (altro)</label><input id="fAltro"></div>'+
+   campo("fEnte","Ente erogatore","")+campo("fImp","Importo (€)","",false,"es. 3.200.000,00",'onblur="fmtNum(this)"')+
+   sel("fEco","Economie riutilizzabili",[["si","sì"],["no","no"],["parziale","parziale"]],"no")+campoArea("fVin","Vincoli","","Vincoli imposti dalla fonte: destinazione delle economie, scadenze di rendicontazione, quote di cofinanziamento… — citare l'atto che li stabilisce (bando, convenzione, decreto)")+
+  '</div><div style="margin-top:8px"><button onclick="addFonte()">Aggiungi fonte</button></div></div>';
+  aggiornaFonteSel();
+}
+function aggiornaFonteSel(){
+  const t=$("fTipo").value;
+  if(!t){ $("fFonte").innerHTML='<option value="">— prima selezionare la tipologia —</option>'; $("fFonte").disabled=true; fonteAltro(); return; }
+  $("fFonte").disabled=false;
+  $("fFonte").innerHTML='<option value="">— selezionare la fonte… —</option>'+FONTI_CATALOGO[t].voci.map(x=>'<option value="'+esc(x)+'">'+esc(x)+"</option>").join("")+'<option value="ALTRO">Altro…</option>';
+  fonteAltro();
+}
+function fonteAltro(){ $("fAltroBox").style.display=($("fFonte").value==="ALTRO"?"":"none"); }
+function campo(id,lbl,val,dis,ph,extra){ return "<div><label>"+lbl+'</label><input id="'+id+'" value="'+esc(val)+'"'+(dis?" disabled":"")+(ph?' placeholder="'+esc(ph)+'"':"")+(extra?" "+extra:"")+"></div>"; }
+function campoArea(id,lbl,val,ph){ return '<div style="grid-column:1/-1"><label>'+lbl+'</label><textarea id="'+id+'" style="min-height:52px"'+(ph?' placeholder="'+esc(ph)+'"':"")+">"+esc(val)+"</textarea></div>"; }
+function sel(id,lbl,opts,val,ph,extra){ return "<div><label>"+lbl+'</label><select id="'+id+'"'+(extra?" "+extra:"")+">"+(ph?'<option value=""'+(val?"":" selected")+">"+ph+"</option>":"")+opts.map(o=>'<option value="'+o[0]+'"'+(o[0]===val?" selected":"")+">"+o[1]+"</option>").join("")+"</select></div>"; }
+function leggiTestata(){
+  if(!$("tNick"))return;
+  const t=db.testata;
+  const nick=$("tNick").value.replace(/\s/g,"");
+  if(nick.length>10){alert("Nickname oltre 10 caratteri: troncato.");}
+  t.nickname=nick.slice(0,10);
+  t.cui=$("tCui").value.trim()||null; t.cup=$("tCup").value.trim()||null; t.cig_principale=$("tCig").value.trim()||null;
+  t.denominazione=$("tDen").value;
+  const sg=document.querySelector('input[name="tSoglia"]:checked'); t.sopra_soglia_ue=sg?sg.value:null;
+  t.modalita_affidamento=$("tMod").value; t.contratto=$("tContr").value; t.motivazione_a_corpo=$("tMotC").value;
+  t.importo_stimato=parseIt($("tImp").value);
+  t.tipologia_intervento=$("tTipoInt").value;
+  t.soggetta_L717=$("tL717").value; t.motivazione_L717=$("tMotL").value;
+  t.stazione_appaltante={denominazione:$("tSaDen").value,ufficio_o_settore:$("tSaUff").value,citta:$("tSaCit").value};
+  t.descrizione_opera=$("tDesc").value; t.presentazione=$("tPres").value;
+}
+/* dal 15-7-2026 (richiesta da Mauro): "altri edifici pubblici" è l'unica tipologia soggetta alla L. 717/1949
+   (v. nota su TIPOLOGIA_INTERVENTO) — la scelta della tipologia determina quindi automaticamente il valore di
+   "Soggetta L. 717/1949", che resta comunque un select modificabile a mano in seguito (stesso principio di ogni
+   altro valore calcolato/proposto nell'app, es. ECO): l'automatismo compila, non blocca. */
+function aggiornaSoggettaL717Auto(){
+  const v=$("tTipoInt").value;
+  $("tL717").value = !v ? "" : (v==="altri_edifici_pubblici" ? "si" : "no");
+}
+function addFonte(){
+  const tip=$("fTipo").value, scelta=$("fFonte").value;
+  if(!tip) return alert("Selezionare la tipologia della fonte.");
+  if(!scelta) return alert("Selezionare la fonte.");
+  const descr=(scelta==="ALTRO")?$("fAltro").value.trim():scelta;
+  if(!descr) return alert("Indicare la descrizione della fonte.");
+  db.fonti_finanziamento.push({id_fonte:"F"+(db.fonti_finanziamento.length+1),tipologia_fonte:FONTI_CATALOGO[tip].label,fonte:(scelta==="ALTRO"?"Altro":scelta),descrizione:descr,ente_erogatore:$("fEnte").value,importo:parseIt($("fImp").value),economie_riutilizzabili:$("fEco").value,vincoli:$("fVin").value});
+  leggiTestata(); render();
+}
+function rmFonte(i){ if(confirm("Eliminare la fonte?")){db.fonti_finanziamento.splice(i,1);leggiTestata();render();} }
+
+/* ---- Soggetti ---- */
+function rSoggetti(){
+  $("vista").innerHTML=
+  '<div class="card"><h2>Anagrafe soggetti (a validità temporale)</h2><table><thead><tr><th>Ruolo</th><th>Tipologia</th><th>Soggetto</th><th>Atto</th><th>Decorrenza</th><th>Cessazione</th><th></th></tr></thead><tbody>'+
+  db.soggetti.map((s,i)=>{const rl=RUOLI.find(r=>r[0]===s.ruolo);return '<tr style="cursor:pointer'+(soggettoInEdit===i?';background:#fdf3f2':'')+'" title="Clicca per modificare la scheda" onclick="editSoggetto('+i+')"><td>'+(rl?rl[1]:s.ruolo)+(s.livello?" ("+esc(s.livello)+")":"")+"</td><td>"+tipoLbl(s.tipo_soggetto)+(s.mandataria?"<div class='mini'>mandataria: "+esc(s.mandataria)+"</div>":"")+"</td><td>"+esc(s.denominazione)+(s.nominativo?"<div class='mini'>"+esc(s.nominativo)+"</div>":"")+(s.referente_qe?"<div class='mini'>redazione QE: "+esc(s.referente_qe)+"</div>":"")+(s.componenti?"<div class='mini'>"+s.componenti.map(esc).join("<br>")+"</div>":"")+"</td><td>"+esc((s.atto_incarico||{}).tipo||"")+" "+esc((s.atto_incarico||{}).numero||"")+"</td><td>"+fmtData(s.decorrenza)+"</td><td>"+(s.cessazione?fmtData(s.cessazione):'<span class="pill ok">in carica</span>')+"</td><td>"+(s.cessazione?"":(cessaPending===i?'<span onclick="event.stopPropagation()"><input type="date" id="cesData" style="width:150px"> <button class="sec" onclick="cessa('+i+')">Conferma</button> <button class="sec" onclick="cessaAnnulla()">Annulla</button></span>':'<button class="sec" onclick="event.stopPropagation();cessaChiedi('+i+')">Cessa</button>'))+"</td></tr>";}).join("")+
+  '</tbody></table></div>'+
+  '<div class="card"><h2>'+(soggettoInEdit!=null?"Modifica scheda soggetto":"Nuova nomina")+'</h2><div class="griglia">'+
+   '<div><label>Ruolo</label><select id="sRuolo" onchange="ruoloUI()"><option value="" selected>— selezionare il ruolo… —</option>'+RUOLI.map(r=>'<option value="'+r[0]+'">'+r[1]+"</option>").join("")+'</select></div>'+
+   '<div><label>Tipologia soggetto</label><select id="sTipo" onchange="tipoSoggUI()" disabled><option value="" selected>— prima selezionare il ruolo —</option></select></div>'+
+   campo("sDen","Titolo Nome Cognome / Ragione sociale","")+
+  '</div>'+
+  '<div id="boxLiv" class="griglia" style="display:none;margin-top:10px">'+campo("sLiv","Livello di progettazione (DOCFAP/PFTE/PE)","")+'</div>'+
+  '<div class="griglia" style="margin-top:10px">'+
+   sel("sAttoT","Atto — tipo",ATTO_TIPI.map(a=>[a,a]),"","— prima selezionare il ruolo —")+
+   campo("sAttoN","Atto — numero","")+
+   campo("sAttoD","Atto — data","",false,"",' type="date"')+
+   campo("sDec","Decorrenza","",false,"",' type="date"')+
+  '</div>'+
+  '<div id="boxSoc" class="griglia" style="display:none;margin-top:10px">'+
+   campo("sRef","Referente della società (titolo Nome Cognome)","",false,"La persona fisica che concorrerà alla redazione del QE e comparirà come redattore degli eventi")+
+  '</div>'+
+  '<div id="boxRti" class="griglia" style="display:none;margin-top:10px">'+
+   campo("sMand","Mandataria del RTI","")+
+   campo("sNom","Legale rappresentante della mandataria","")+
+   campo("sRefQe","Responsabile della redazione del QE (titolo Nome Cognome)","",false,"La persona fisica del RTI che concorrerà alla redazione del QE e comparirà come redattore degli eventi")+
+  '</div>'+
+  '<div id="boxComm" class="griglia" style="display:none;margin-top:10px">'+
+   campo("sC1","Componente 1 (presidente)","")+
+   campo("sC2","Componente 2","")+
+   campo("sC3","Componente 3","")+
+  '</div>'+
+  '<div style="margin-top:10px"><button onclick="nomina()">'+(soggettoInEdit!=null?"Salva modifiche":"Registra nomina")+'</button>'+(soggettoInEdit!=null?' <button class="sec" onclick="annullaEdit()">Annulla</button>':"")+'</div><p class="mini" style="margin-top:6px">'+(soggettoInEdit!=null?"Il salvataggio aggiorna la scheda e genera un evento RETTIFICA nel registro (la storia non si riscrive).":"La nomina genera un evento NOMINA nel registro. Commissioni: massimo 3 componenti; il Collegio consultivo tecnico è sempre una commissione di 3.")+"</p></div>";
+  ruoloUI();
+  if(soggettoInEdit!=null){
+    const s=db.soggetti[soggettoInEdit];
+    $("sRuolo").value=s.ruolo; ruoloUI();
+    $("sTipo").value=s.tipo_soggetto; tipoSoggUI();
+    $("sDen").value=s.denominazione||""; $("sLiv").value=s.livello||"";
+    $("sAttoT").value=(s.atto_incarico||{}).tipo||""; $("sAttoN").value=(s.atto_incarico||{}).numero||"";
+    $("sAttoD").value=(s.atto_incarico||{}).data||""; $("sDec").value=s.decorrenza||"";
+    if(s.tipo_soggetto==="societa") $("sRef").value=s.nominativo||"";
+    if(s.tipo_soggetto==="rti"){ $("sMand").value=s.mandataria||""; $("sNom").value=s.nominativo||""; $("sRefQe").value=s.referente_qe||""; }
+    if(s.tipo_soggetto==="commissione"){ const c=s.componenti||[]; $("sC1").value=c[0]||""; $("sC2").value=c[1]||""; $("sC3").value=c[2]||""; }
+  }
+}
+function editSoggetto(i){ soggettoInEdit=i; render(); }
+function annullaEdit(){ soggettoInEdit=null; render(); }
+function tipologieAmmesse(r){
+  if(!r) return [];
+  if(r==="cct") return ["commissione"];
+  if(RTI_AMMESSO.includes(r)) return ["persona_singola","societa","rti"];
+  if(COMMISSIONE_AMMESSA.includes(r)) return ["persona_singola","commissione"];
+  return ["persona_singola","societa"];
+}
+function ruoloUI(){
+  const r=$("sRuolo").value;
+  $("boxLiv").style.display=(r==="progettista"?"":"none");
+  const lbl={persona_singola:"persona singola",societa:"società",rti:"RTI",commissione:"commissione"};
+  const amm=tipologieAmmesse(r);
+  const sT=$("sTipo"), sA=$("sAttoT");
+  if(!r){
+    sT.innerHTML='<option value="" selected>— prima selezionare il ruolo —</option>'; sT.disabled=true;
+    sA.disabled=true; sA.selectedIndex=0;
+  }else{
+    sT.disabled=false; sA.disabled=false;
+    sT.innerHTML=(amm.length>1?'<option value="" selected>— selezionare la tipologia… —</option>':"")+amm.map(t=>'<option value="'+t+'"'+(amm.length===1?" selected":"")+">"+lbl[t]+"</option>").join("");
+  }
+  tipoSoggUI();
+}
+function tipoSoggUI(){
+  const t=$("sTipo").value;
+  $("boxSoc").style.display=(t==="societa"?"":"none");
+  $("boxRti").style.display=(t==="rti"?"":"none");
+  $("boxComm").style.display=(t==="commissione"?"":"none");
+}
+async function nomina(){
+  const tipo=$("sTipo").value;
+  if(!$("sRuolo").value) return alert("Selezionare il ruolo.");
+  if(!tipo) return alert("Selezionare la tipologia soggetto.");
+  if(!$("sAttoT").value) return alert("Selezionare il tipo di atto.");
+  const s={ruolo:$("sRuolo").value,tipo_soggetto:tipo,denominazione:$("sDen").value.trim(),livello:$("sLiv").value||null,
+    atto_incarico:{tipo:$("sAttoT").value,numero:$("sAttoN").value,data:$("sAttoD").value},decorrenza:$("sDec").value,cessazione:null};
+  if(tipo==="rti"){
+    if(!RTI_AMMESSO.includes(s.ruolo)) return alert("RTI ammesso solo per progettista, DL e verificatore (doc 03 § 5).");
+    s.mandataria=$("sMand").value.trim(); s.nominativo=$("sNom").value.trim(); s.referente_qe=$("sRefQe").value.trim();
+    if(!s.mandataria) return alert("Per un RTI la mandataria è obbligatoria.");
+    if(!s.nominativo) return alert("Indicare il legale rappresentante della mandataria.");
+    if(!s.referente_qe) return alert("Indicare il responsabile della redazione del QE (persona fisica del RTI).");
+  }
+  if(tipo==="commissione"){
+    if(!COMMISSIONE_AMMESSA.includes(s.ruolo)) return alert("La commissione è ammessa solo per i collaudatori e per il Collegio consultivo tecnico.");
+    s.componenti=[$("sC1").value.trim(),$("sC2").value.trim(),$("sC3").value.trim()].filter(x=>x);
+    if(s.ruolo==="cct"&&s.componenti.length!==3) return alert("Il Collegio consultivo tecnico è sempre una commissione di 3 componenti.");
+    if(!s.componenti.length) return alert("Indicare almeno un componente della commissione.");
+    if(!s.denominazione) s.denominazione=(s.ruolo==="cct"?"Collegio consultivo tecnico":"Commissione di collaudo");
+  }
+  if(s.ruolo==="cct"&&tipo!=="commissione") return alert("Il Collegio consultivo tecnico è sempre una commissione di 3 componenti: selezionare la tipologia «commissione».");
+  if((tipo==="persona_singola"||tipo==="societa")&&!s.denominazione) return alert(tipo==="persona_singola"?"Indicare titolo, nome e cognome.":"Indicare la ragione sociale.");
+  if(tipo==="societa"){
+    s.nominativo=$("sRef").value.trim();
+    if(!s.nominativo) return alert("Indicare il referente della società (la persona fisica che concorrerà alla redazione del QE).");
+  }
+  if(soggettoInEdit!=null){
+    s.cessazione=db.soggetti[soggettoInEdit].cessazione||null;
+    db.soggetti[soggettoInEdit]=s;
+    await appendEvento({fase:db.testata.fase_corrente,tipo:"RETTIFICA",tipo_innesco:"atto",atto:s.atto_incarico,
+      redattore:{nominativo:s.referente_qe||s.nominativo||(s.componenti?s.componenti[0]:s.denominazione),ruolo:s.ruolo},delta:[],
+      fonte:[{tipo_doc:"atto_incarico",codice:s.atto_incarico.numero,titolo:s.atto_incarico.tipo,pagina:"",revisione:"",data:s.atto_incarico.data}],
+      soggetto:JSON.parse(JSON.stringify(s)),note:"Aggiornamento scheda soggetto "+s.ruolo});
+    soggettoInEdit=null; render(); return;
+  }
+  db.soggetti.push(s);
+  await appendEvento({fase:db.testata.fase_corrente,tipo:"NOMINA",tipo_innesco:"atto",atto:s.atto_incarico,
+    redattore:{nominativo:s.referente_qe||s.nominativo||(s.componenti?s.componenti[0]:s.denominazione),ruolo:s.ruolo},delta:[],fonte:[{tipo_doc:"atto_incarico",codice:s.atto_incarico.numero,titolo:s.atto_incarico.tipo,pagina:"",revisione:"",data:s.atto_incarico.data}],soggetto:JSON.parse(JSON.stringify(s)),note:"Nomina "+s.ruolo});
+  render();
+}
+let cessaPending=null;
+function cessaChiedi(i){ cessaPending=i; render(); setTimeout(()=>{const e=$("cesData"); if(e)e.focus();},0); }
+function cessaAnnulla(){ cessaPending=null; render(); }
+async function cessa(i){
+  const d=$("cesData")?$("cesData").value:""; if(!d) return alert("Selezionare la data di cessazione.");
+  cessaPending=null;
+  db.soggetti[i].cessazione=d;
+  await appendEvento({fase:db.testata.fase_corrente,tipo:"CESSAZIONE_INCARICO",tipo_innesco:"atto",atto:{tipo:"atto",numero:"",data:d,organo:""},redattore:{nominativo:"",ruolo:db.soggetti[i].ruolo},delta:[],fonte:[],note:"Cessazione "+db.soggetti[i].ruolo});
+  render();
+}
+
+/* ---- Registro ---- */
+let fontiEvento=[]; /* pezze giustificative dell'evento in corso — elenco numerato, come le fonti di finanziamento (v0.09) */
+function rRegistro(){
+  $("vista").innerHTML=
+  '<div class="card"><h2>Registro eventi (append-only, catena SHA-256)</h2><table><thead><tr><th>#</th><th>Data</th><th>Fase</th><th>Tipo</th><th>Innesco</th><th>Atto</th><th>Redattore</th><th>Movimenti</th><th>Note</th></tr></thead><tbody>'+
+  db.registro_eventi.slice().reverse().map(ev=>"<tr><td>"+ev.id+"</td><td>"+fmtData(ev.timestamp.slice(0,10))+"</td><td>"+faseNum(ev.fase)+"</td><td>"+(EVENTI_LBL[ev.tipo]||ev.tipo)+"</td><td>"+ev.tipo_innesco+"</td><td>"+esc((ev.atto||{}).tipo||"")+" "+esc((ev.atto||{}).numero||"")+"</td><td>"+esc((ev.redattore||{}).nominativo||"")+"</td><td>"+(ev.delta||[]).map(d=>d.voce+": "+eur(d.importo)).join("<br>")+"</td><td>"+esc(ev.note||"")+"</td></tr>").join("")+
+  '</tbody></table></div>'+
+  '<div class="card"><h2>Fase '+esc(faseLbl(db.testata.fase_corrente))+' — Evento: <select id="eTipo" style="width:auto;display:inline-block;font-size:14px;padding:5px 8px;margin-left:4px"><option value="" selected>— selezionare l\'evento… —</option>'+eventiAmmessi(db.testata.fase_corrente).map(t=>'<option value="'+t+'">'+(EVENTI_LBL[t]||t)+"</option>").join("")+'</select></h2><div class="griglia">'+
+   '<div><label>Responsabile attività di fase</label><div class="radio-riga"><label><input type="radio" name="eRedR" value="rup" onchange="autofillResp()"> RUP</label><label><input type="radio" name="eRedR" value="dec" onchange="autofillResp()"> DEC</label><label><input type="radio" name="eRedR" value="rp_progesec" onchange="autofillResp()"> RP progettazione ed esecuzione</label><label><input type="radio" name="eRedR" value="rp_affidamento" onchange="autofillResp()"> RP affidamento</label><label><input type="radio" name="eRedR" value="progettista" onchange="autofillResp()"> Progettista</label></div></div>'+
+   /* dal 15-7-2026 (segnalato da Mauro): più progettisti possono essere nominati liberamente su livelli diversi
+      (DOCFAP/PFTE/PE) e restare tutti "in carica" — un campo di solo testo autocompilato sceglieva sempre il
+      primo nominato, indipendentemente da quale avesse davvero seguito la fase in corso. Quando il responsabile
+      scelto è "progettista", si mostra invece un elenco (eRedNProgBox) di tutti i progettisti in carica, col
+      livello tra parentesi per distinguerli; eRedN resta il campo unico che viaggia nell'evento (nessuna modifica
+      a registraEvento()/raccogliBozza()): il select si limita a scriverci dentro il nominativo scelto. */
+   '<div id="eRedNBox">'+campo("eRedN","Nominativo","")+'</div>'+
+   '<div id="eRedNProgBox" style="display:none"><label>Nominativo (progettista)</label><select id="eRedNProg" onchange="aggiornaRedNDaSelect()"></select><p class="mini" style="margin-top:4px">Progettisti in carica; livello tra parentesi dove indicato in anagrafe soggetti.</p></div>'+
+   campo("eDesc","Descrizione dell'evento (max 100 caratteri)","",false,"comparirà come nome dell'evento negli snapshot",' maxlength="100"')+
+  '</div>'+
+  '<h2 style="margin-top:14px">Voci del QE e relativi importi</h2>'+
+  '<p class="mini" style="margin:4px 0 8px">Inserire il <b>valore totale</b> della voce (non il delta: lo calcola l\'app, in rosso se aumento di spesa, in verde se diminuzione) e spuntare le serie a cui il valore si applica — anche più d\'una (es. stanziato e impegnato, o stanziato, impegnato e liquidato). Nessuna serie è obbligatoria. Le voci in grigio con sfondo pieno sono <b>totali calcolati</b> dalle rispettive sotto-voci: non sono più imputabili direttamente da questa fase in poi.</p>'+
+  tabellaMovimenti()+
+  '<h2 style="margin-top:14px">Fonti documentali (pezze giustificative — R-17)</h2>'+
+  '<div class="griglia">'+campo("fT","Tipo doc","",false,"CME, PSC, perizia…")+campo("fC","Codice","")+campo("fTi","Titolo","")+campo("fP","Pag.","")+campo("fR","Rev.","")+'<div><label>Data</label><input type="date" id="fD"></div></div>'+
+  '<button class="sec" onclick="addFonteDoc()">+ Aggiungi pezza giustificativa</button>'+
+  '<div id="listaFonti" style="margin-top:8px"></div>'+
+  '<div style="margin-top:10px"><label>Note</label><textarea id="eNote"></textarea></div>'+
+  '<div style="margin-top:10px"><button class="sec" onclick="salvaBozza()">Salva e continua dopo</button> <button onclick="registraEvento()">Salva e concludi l\'evento (snapshot)</button>'+(db.bozza_evento?' <button class="warn" onclick="scartaBozza()">Scarta bozza</button>':"")+'</div><div id="eMsg"></div></div>';
+  fontiEvento=[]; renderListaFonti();
+  ULTIMO_RIBASSO_GARA=null; /* reset a ogni ricostruzione del form: niente residui da un evento già registrato */
+  aggiornaTotali();
+  if(db.bozza_evento){
+    const b=db.bozza_evento;
+    ULTIMO_RIBASSO_GARA=b.base_gara||null;
+    if(b.redR){ const rb=document.querySelector('input[name="eRedR"][value="'+b.redR+'"]'); if(rb){ rb.checked=true; autofillResp(); } }
+    $("eRedN").value=b.redN||"";
+    if(b.redR==="progettista"){ const selP=$("eRedNProg"); if(selP&&[...selP.options].some(o=>o.value===b.redN)) selP.value=b.redN; }
+    if(b.tipo&&[...$("eTipo").options].some(o=>o.value===b.tipo)) $("eTipo").value=b.tipo;
+    $("eNote").value=b.note||""; $("eDesc").value=b.desc||"";
+    Object.keys(b.movimenti||{}).forEach(k=>{
+      const el=$("mvI_"+k); if(!el) return;
+      el.value=b.movimenti[k].importo;
+      (b.movimenti[k].serie||[]).forEach(s=>{const c=$("mv_"+s+"_"+k); if(c) c.checked=true;});
+      aggiornaDelta(k);
+      const selDoc=$("mvDoc_"+k); if(selDoc&&b.movimenti[k].docRif!=null) selDoc.value=b.movimenti[k].docRif;
+    });
+    fontiEvento=(b.fonti||[]).slice(); renderListaFonti(); aggiornaSelectDocRif();
+    $("eMsg").innerHTML='<div class="msg warn">Bozza di evento non conclusa: ripresa automaticamente. Concludila, continua a modificarla o scartala.</div>';
+  }
+}
+function nomeSoggetto(s){ return s.referente_qe||s.nominativo||(s.componenti?s.componenti[0]:s.denominazione)||""; }
+function progettistiAttivi(){ return db.soggetti.filter(x=>x.ruolo==="progettista"&&!x.cessazione); }
+function labelProgettista(s){
+  const nome=nomeSoggetto(s), extra=[];
+  if(s.livello) extra.push(s.livello);
+  if(s.tipo_soggetto!=="persona_singola"&&s.denominazione&&s.denominazione!==nome) extra.push(s.denominazione);
+  return nome+(extra.length?" ("+extra.join(" — ")+")":"");
+}
+function aggiornaRedNDaSelect(){ $("eRedN").value=$("eRedNProg").value; }
+function autofillResp(){
+  const r=document.querySelector('input[name="eRedR"]:checked');
+  if(!r) return;
+  if(r.value==="progettista"){
+    const cand=progettistiAttivi();
+    $("eRedNProg").innerHTML=cand.length
+      ? cand.map(s=>'<option value="'+esc(nomeSoggetto(s))+'">'+esc(labelProgettista(s))+"</option>").join("")
+      : '<option value="">— nessun progettista in carica —</option>';
+    $("eRedNBox").style.display="none"; $("eRedNProgBox").style.display="";
+    $("eRedN").value=cand.length?nomeSoggetto(cand[0]):"";
+    return;
+  }
+  $("eRedNProgBox").style.display="none"; $("eRedNBox").style.display="";
+  const s=db.soggetti.find(x=>x.ruolo===r.value&&!x.cessazione);
+  $("eRedN").value=s?nomeSoggetto(s):"";
+}
+function raccogliBozza(){
+  const rr=document.querySelector('input[name="eRedR"]:checked');
+  const b={redR:rr?rr.value:"",redN:$("eRedN").value,tipo:$("eTipo").value,desc:$("eDesc").value,
+    note:$("eNote").value,movimenti:{},fonti:[]};
+  db.dizionario_voci.forEach(x=>{
+    const el=$("mvI_"+x.key);
+    if(el&&el.value.trim()){ const selDoc=$("mvDoc_"+x.key); b.movimenti[x.key]={importo:el.value,serie:SERIE_MOV.filter(s=>$("mv_"+s[0]+"_"+x.key).checked).map(s=>s[0]),docRif:(selDoc&&selDoc.value!==""?selDoc.value:null)}; }
+  });
+  b.fonti=fontiEvento.slice();
+  /* dal 15-7-2026: la base di gara calcolata da calcolaEco() (v. ULTIMO_RIBASSO_GARA) deve sopravvivere a
+     "Salva e continua dopo", altrimenti riprendendo la bozza in una sessione successiva si perderebbe il valore
+     lordo da allegare all'evento come ev.base_gara. */
+  b.base_gara=ULTIMO_RIBASSO_GARA;
+  return b;
+}
+function salvaBozza(){
+  db.bozza_evento=raccogliBozza();
+  $("eMsg").innerHTML='<div class="msg ok">Bozza salvata nel file opera (nessun evento registrato, nessuno snapshot). Ricordati di salvare il file col pulsante «Salva» in alto.</div>';
+}
+function scartaBozza(){ if(confirm("Scartare la bozza di evento non conclusa?")){ db.bozza_evento=null; render(); } }
+const SERIE_MOV=[["stanziamento","stanziato"],["impegnato","impegnato"],["liquidato","liquidato"]];
+/* "necessita"/"necessario" eliminata dal 12-7-2026 (v0.08): se una cifra è in QE è per definizione necessaria, la qualifica era ridondante. Rimossa solo dalle serie selezionabili per i nuovi movimenti; proiezione() e LBLST in stampaCopertina() restano invariate per leggere correttamente eventi storici salvati con la qualifica. */
+let PCUR=null;
+function serieVal(p,s,k){ return ({necessita:p.nec,stanziamento:p.st,impegnato:p.imp,liquidato:p.liq})[s][k]||0; }
+let REFCUR=null;
+/* dal 15-7-2026 (segnalato da Mauro in collaudo, confermato dal libro §3.3/3.3.1): quando si applica il ribasso di
+   gara, i valori LORDI di a/d (e a.1/a.2 in appalto integrato) PRIMA della riscrittura al netto vanno congelati come
+   "base di gara" per R-01/R-02/R-08/R-09, che devono restare ancorate al lordo (già confermato il 14-7-2026). Questa
+   variabile transitoria tiene quei valori tra il momento in cui si preme "calcola" (calcolaEco()) e la registrazione
+   dell'evento (registraEvento()), che li allega all'evento come ev.base_gara; sopravvive anche a una bozza salvata
+   (v. raccogliBozza()/rRegistro()). proiezione() la congela in modo permanente (primo evento con base_gara vince,
+   "si compie una sola volta" per citare il libro), non è quindi un problema se viene sovrascritta da un ricalcolo
+   successivo prima del salvataggio. */
+let ULTIMO_RIBASSO_GARA=null;
+function tabellaMovimenti(){
+  const fr=faseIdx(db.testata.fase_corrente);
+  PCUR=proiezione(null,fr);
+  const p=PCUR;
+  REFCUR=p.cur;
+  /* Appalto integrato da PFTE (v0.11): servizi di ingegneria (e, f) ribassabili a parte, con proprio totale e propria ECO. */
+  const mostraIng=db.testata.modalita_affidamento==="appalto_integrato"&&fr>=faseIdx("PFTE");
+  const etichettaApp="IMPORTO TOTALE DELL'APPALTO (a + b + c + d"+(mostraIng?" + a.1 + a.2":"")+")";
+  let out='<table><thead><tr><th>Voce</th><th>Descrizione</th><th style="width:150px" class="num">Versione precedente [€]</th><th style="width:150px">Versione attuale [€]</th><th style="width:150px" class="num">Delta [€]</th><th>Doc. Rif.</th><th>Stato</th></tr></thead><tbody>';
+  const blocchi={A:"QUADRO A — Importo dell'appalto",B:"QUADRO B — Somme a disposizione"};
+  const visibili=vociVisibili(fr);
+  ["A","B"].forEach(q=>{
+    out+='<tr class="tot"><td colspan="7">'+blocchi[q]+"</td></tr>";
+    visibili.filter(x=>x.quadro===q&&x.key!=="ECO"&&x.key!=="ECO_ING").forEach(x=>{
+      const k=x.key;
+      const calcolata=disaggAttiva(x,fr);
+      const indentSt=x.sotto_voce_di?' style="padding-left:26px"':"";
+      /* e.17, richiesto da Mauro il 15-7-2026: pulsante di calcolo automatico (scaglioni fissi L.717/1949,
+         sull'intero importo lavori per fascia — v. accantonamentoL717()) visibile solo se l'opera è segnata come
+         soggetta (testata.soggetta_L717) — se non soggetta o non ancora indicato, resta solo imputabile a mano
+         come oggi, nessun calcolo proposto (su indicazione di Mauro). */
+      const extraL717=k==="e.17"
+        ? (db.testata.soggetta_L717==="si"
+            ? ' <button type="button" class="sec" style="padding:1px 8px;font-size:12px" onclick="calcolaL717()">Calcola (L. 717/1949)</button>'
+            : ' <span class="mini">(non soggetta alla L. 717/1949 — v. Dati generali di base; imputare manualmente se comunque dovuto)</span>')
+        : "";
+      /* e.18.7, richiesto da Mauro il 15-7-2026: pulsante di calcolo automatico sempre visibile (a differenza di
+         e.17, il contributo ANAC non dipende da una classificazione preliminare) — v. calcolaAnac(). */
+      const extraAnac=k==="e.18.7"
+        ? ' <button type="button" class="sec" style="padding:1px 8px;font-size:12px" onclick="calcolaAnac()">Calcola (Contributo ANAC)</button>'
+        : "";
+      out+="<tr"+(x.natura==="di_cui"?' style="color:#7a8494"':"")+(calcolata?' style="background:#f6f8fa"':"")+"><td>"+k+"</td><td"+indentSt+(p.fonti[k]&&p.fonti[k].length?' title="'+esc(fontiTxt(p.fonti[k]))+'"':"")+">"+esc(x.descrizione)+iconaInfo(k)+extraL717+extraAnac+(calcolata?(p.sommata[k]?' <span class="mini">(totale delle sotto-voci)</span>':' <span class="mini">(stima forfettaria, sotto-voci non ancora dettagliate)</span>'):"")+
+      '</td><td><div class="cellbox">'+eur(REFCUR[k]||0)+'</div></td>'+
+      (calcolata
+        ? '<td><div class="cellbox" id="mvCalc_'+k+'">'+eur(REFCUR[k]||0)+'</div></td><td><div class="cellbox"></div></td><td class="mini">—</td><td class="mini">totale, non imputabile</td>'
+        : '<td><input id="mvI_'+k+'" style="text-align:right" placeholder="0,00" oninput="aggiornaDelta(\''+k+'\')" onblur="fmtNum(this);aggiornaDelta(\''+k+'\')"></td>'+
+          '<td><div class="cellbox" id="mvD_'+k+'"></div></td>'+
+          '<td><select id="mvDoc_'+k+'" style="width:100%">'+opzioniDocRif()+'</select></td><td>'+
+          SERIE_MOV.map(s=>'<label class="chk"><input type="checkbox" id="mv_'+s[0]+'_'+k+'"'+((p.stati[k]||[]).includes(s[0])?" checked":"")+' onchange="aggiornaDelta(\''+k+'\')"> '+s[1]+"</label>").join("")+"</td>"
+      )+
+      "</tr>";
+    });
+    if(q==="A"){
+      out+=rigaTot("totRib1","TOTALE OPERE SOGGETTE A RIBASSO (a + d, al netto dell'economia da ribasso)");
+      if(mostraIng) out+=rigaTot("totRibIng","TOTALE SERVIZI DI INGEGNERIA SOGGETTO A RIBASSO (a.1 + a.2, al netto dell'economia da ribasso)");
+      out+=rigaTot("totNR1","TOTALE OPERE NON SOGGETTE A RIBASSO (b + c)");
+      out+=rigaTot("totApp1",etichettaApp);
+    }else{
+      out+=rigaTot("totB","TOTALE QUADRO B");
+      out+=rigaTot("totApp2",etichettaApp);
+      out+=rigaTot("totTot","TOTALE COMPLESSIVO");
+    }
+  });
+  /* v0.11, corretto 14-7-2026 (segnalato da Mauro): la percentuale di ribasso è UNICA per lavori e servizi di
+     ingegneria — non due percentuali indipendenti. L'unico accorgimento è il limite del 35% sul solo calcolo dei
+     servizi di ingegneria (art. 41 c.15-bis D.Lgs. 36/2023, procedure OEPV): se la percentuale offerta supera il
+     35%, sui servizi si applica comunque il 35%; sui lavori resta invece applicata per intero. Un solo input
+     percentuale (sulla riga ECO), che alimenta entrambe le economie tramite calcolaEco(). */
+  const ecoKeys=["ECO"].concat(mostraIng?["ECO_ING"]:[]);
+  const ecoVoci=ecoKeys.map(k=>db.dizionario_voci.find(x=>x.key===k)).filter(Boolean);
+  if(ecoVoci.length){
+    out+='<tr class="tot"><td colspan="7">ECONOMIE DA RIBASSO — accantonate, non incluse nel totale QE</td></tr>';
+    ecoVoci.forEach(eco=>{
+      const k=eco.key;
+      const extra = k==="ECO"
+        ? ' <span style="white-space:nowrap">— ribasso di gara <input id="mvPerc_ECO" style="width:60px;text-align:right;display:inline-block" placeholder="%" title="Percentuale di ribasso, unica per lavori (a+d) e servizi di ingegneria (e+f, se presenti). Sui servizi di ingegneria si applica comunque il limite del 35% (art. 41 c.15-bis)." oninput="calcolaEco()"> %</span>'
+        : ' <span class="mini">(stessa percentuale della voce ECO, applicata a a.1 + a.2 — limitata al 35% se la percentuale offerta è superiore, art. 41 c.15-bis)</span>';
+      out+="<tr><td>"+k+"</td><td"+(p.fonti[k]&&p.fonti[k].length?' title="'+esc(fontiTxt(p.fonti[k]))+'"':"")+">"+esc(eco.descrizione)+iconaInfo(k)+extra+
+        '</td><td><div class="cellbox">'+eur(REFCUR[k]||0)+'</div></td>'+
+        '<td><input id="mvI_'+k+'" style="text-align:right" placeholder="0,00" oninput="aggiornaDelta(\''+k+'\')" onblur="fmtNum(this);aggiornaDelta(\''+k+'\')"></td>'+
+        '<td><div class="cellbox" id="mvD_'+k+'"></div></td>'+
+        '<td><select id="mvDoc_'+k+'" style="width:100%">'+opzioniDocRif()+'</select></td><td>'+
+        SERIE_MOV.map(s=>'<label class="chk"><input type="checkbox" id="mv_'+s[0]+'_'+k+'"'+((p.stati[k]||[]).includes(s[0])?" checked":"")+' onchange="aggiornaDelta(\''+k+'\')"> '+s[1]+"</label>").join("")+"</td>"+
+        "</tr>";
+    });
+  }
+  return out+"</tbody></table>";
+}
+function rigaTot(id,label){
+  return '<tr class="tot"><td colspan="2">'+label+'</td><td><div class="cellbox" id="'+id+'_p"></div></td><td><div class="cellbox" id="'+id+'_a"></div></td><td><div class="cellbox" id="'+id+'_d"></div></td><td></td><td></td></tr>';
+}
+const RIB_KEYS=["a","d"], NR_KEYS=["b","c"], RIB_KEYS_ING=["a.1","a.2"];
+function aggiornaTotali(){
+  const fr=faseIdx(db.testata.fase_corrente);
+  const g={totRib:0,totNR:0,totB:0,totApp:0,totTot:0,totIng:0}, gp={totRib:0,totNR:0,totB:0,totApp:0,totTot:0,totIng:0};
+  db.dizionario_voci.forEach(x=>{
+    if(x.natura!=="additiva") return;
+    if(!voceVisibile(x,fr)) return; /* copre sia le sotto-voci dormienti sia e/f/ECO_ING non ancora applicabili (v0.11) */
+    const k=x.key, prev=REFCUR[k]||0;
+    const el=$("mvI_"+k);
+    const att=(el&&el.value.trim())?parseIt(el.value):prev;
+    /* voce madre disaggregata: esclusa dai totali SOLO quando le sotto-voci ne hanno effettivamente preso il posto —
+       già in precedenza (PCUR.sommata) o perché si sta digitando ora un valore in almeno una di esse. Altrimenti una
+       stima forfettaria non ancora dettagliata resterebbe fuori dai totali "in tempo reale" (corretto il 14-7-2026). */
+    let escludiPrev=false, escludiAtt=false;
+    if(disaggAttiva(x,fr)){
+      escludiPrev=!!PCUR.sommata[k];
+      const sottoVisibili=x.disaggregazione.sotto_voci.filter(sk=>voceVisibile(db.dizionario_voci.find(m=>m.key===sk),fr));
+      const alcunaSottovoceViva=sottoVisibili.some(sk=>{ const sel=$("mvI_"+sk); return sel&&sel.value.trim(); });
+      escludiAtt=escludiPrev||alcunaSottovoceViva;
+    }
+    if(RIB_KEYS.includes(k)){ if(!escludiPrev) gp.totRib+=prev; if(!escludiAtt) g.totRib+=att; }
+    else if(RIB_KEYS_ING.includes(k)){ if(!escludiPrev) gp.totIng+=prev; if(!escludiAtt) g.totIng+=att; } /* v0.11: a.1/a.2, servizi di ingegneria ribassabili dell'appalto integrato */
+    else if(NR_KEYS.includes(k)){ if(!escludiPrev) gp.totNR+=prev; if(!escludiAtt) g.totNR+=att; }
+    else if(x.quadro==="B"&&k!=="ECO"&&k!=="ECO_ING"){ if(!escludiPrev) gp.totB+=prev; if(!escludiAtt) g.totB+=att; } /* ECO/ECO_ING: accantonate, escluse dal totale quadro B */
+  });
+  /* dal 15-7-2026 (segnalato da Mauro, confermato dal libro §3.3/3.3.1): ECO/ECO_ING non si sottraggono più qui —
+     calcolaEco() riscrive già a/d/a.1/a.2 al netto del ribasso, quindi g.totRib/g.totIng (sopra, somma di "att" per
+     RIB_KEYS/RIB_KEYS_ING) sono già al netto. Sottrarre di nuovo ECO/ECO_ING conterebbe due volte lo stesso sconto
+     — era esattamente il bug segnalato in collaudo ("i conti non tornano"): il totale scendeva ma le singole voci
+     a/d restavano al lordo. ECO/ECO_ING restano in tabella come riga a sé, a fini di trasparenza (v. tabellaMovimenti). */
+  gp.totApp=gp.totRib+gp.totNR+gp.totIng; g.totApp=g.totRib+g.totNR+g.totIng;
+  gp.totTot=gp.totApp+gp.totB; g.totTot=g.totApp+g.totB;
+  const mappa={totRib1:"totRib",totRibIng:"totIng",totNR1:"totNR",totApp1:"totApp",totApp2:"totApp",totB:"totB",totTot:"totTot"};
+  Object.keys(mappa).forEach(id=>{
+    const key=mappa[id];
+    const p=$(id+"_p"), a=$(id+"_a"), d=$(id+"_d");
+    if(!p) return;
+    p.textContent=eur(gp[key]); a.textContent=eur(g[key]);
+    const dd=g[key]-gp[key];
+    d.textContent=(dd>0?"+":"")+fmtN(dd);
+    d.style.background=Math.abs(dd)<0.005?"#fff":(dd>0?"#fde8e6":"#e2f2e8");
+  });
+  /* aggiorna anche le celle delle voci madri calcolate. Se almeno una sotto-voce ha un valore digitato in questo evento
+     (o era già "sommata" in precedenza), la cella mostra la somma delle sotto-voci; altrimenti — nessuna sotto-voce mai
+     toccata, nessuna digitazione in corso — mostra il valore proprio della madre (REFCUR, es. una stima forfettaria
+     imputata prima del raggiungimento della soglia di fase), che altrimenti sparirebbe dietro una somma di zeri
+     (corretto il 14-7-2026, segnalato da Mauro). */
+  db.dizionario_voci.forEach(x=>{
+    if(!disaggAttiva(x,fr)) return;
+    const cell=$("mvCalc_"+x.key); if(!cell) return;
+    const k=x.key;
+    const sottoVisibili=x.disaggregazione.sotto_voci.filter(sk=>voceVisibile(db.dizionario_voci.find(m=>m.key===sk),fr));
+    const alcunaSottovoceViva=sottoVisibili.some(sk=>{ const sel=$("mvI_"+sk); return sel&&sel.value.trim(); });
+    let valore;
+    if(PCUR.sommata[k]||alcunaSottovoceViva){
+      valore=sottoVisibili.reduce((s,sk)=>{
+        const el=$("mvI_"+sk);
+        return s+((el&&el.value.trim())?parseIt(el.value):(REFCUR[sk]||0));
+      },0);
+    }else{
+      valore=REFCUR[k]||0;
+    }
+    cell.textContent=eur(valore);
+  });
+}
+/* Limite al ribasso sui servizi di ingegneria dell'appalto integrato (art. 41 c.15-bis D.Lgs. 36/2023, procedure
+   OEPV) — corretto il 14-7-2026 su indicazione di Mauro: la percentuale di ribasso è UNICA (non due percentuali
+   indipendenti come nella prima stesura di questa funzionalità); l'unico accorgimento è che, sui soli servizi di
+   ingegneria, la percentuale applicata non supera mai questo limite, anche se quella offerta in gara è più alta. */
+const RIBASSO_ING_MAX=35;
+function calcolaEco(){
+  const perc=parseIt($("mvPerc_ECO").value);
+  if(!perc){ return; }
+  const baseA=REFCUR["a"]||0, baseD=REFCUR["d"]||0;
+  const ribassabile=baseA+baseD;
+  $("mvI_ECO").value=fmtN(Math.round(ribassabile*perc)/100);
+  /* dal 15-7-2026 (segnalato da Mauro in collaudo, confermato dal libro §3.3/3.3.1: "l'importo del quadro A viene
+     riscritto al valore contrattuale... la differenza riemerge tra le somme a disposizione del quadro B"): il
+     ribasso non riduce più SOLO il totale aggregato — riscrive anche le singole voci "a" e "d" (e, in appalto
+     integrato, "a.1"/"a.2") al valore netto, con la STESSA percentuale applicata a ciascuna (richiesto da Mauro
+     il 15-7-2026). Il valore lordo (REFCUR, cioè il valore corrente prima di questo evento) viene congelato in
+     ULTIMO_RIBASSO_GARA e allegato all'evento da registraEvento() come base di gara per R-01/R-02/R-08/R-09, che
+     restano ancorate al lordo (v. valida()). ECO/ECO_ING non si sottraggono più separatamente dai totali (v.
+     totali(), aggiornaTotali(), stampaCopertina()): sottrarle di nuovo, ora che il ribasso è già incorporato in
+     a/d/a.1/a.2, conterebbe due volte lo stesso sconto. Restano visibili come riga a sé, a fini di trasparenza e
+     tracciabilità (BDAP/MOP, art. 9/60/120/126 D.Lgs. 36/2023), non più come deduzione. */
+  $("mvI_a").value=fmtN(Math.round(baseA*(1-perc/100)*100)/100);
+  aggiornaDelta("a");
+  $("mvI_d").value=fmtN(Math.round(baseD*(1-perc/100)*100)/100);
+  aggiornaDelta("d");
+  ULTIMO_RIBASSO_GARA={a:baseA,d:baseD};
+  /* v0.11: stessa percentuale, applicata anche ai servizi di ingegneria (appalto integrato) se la voce è presente
+     in tabella — con il limite del 35% di cui sopra. Il campo mvI_ECO_ING esiste solo quando mostraIng è vera. */
+  const ecoIngEl=$("mvI_ECO_ING");
+  if(ecoIngEl){
+    const percIng=Math.min(perc,RIBASSO_ING_MAX);
+    const baseA1=REFCUR["a.1"]||0, baseA2=REFCUR["a.2"]||0;
+    const ribassabileIng=baseA1+baseA2;
+    ecoIngEl.value=fmtN(Math.round(ribassabileIng*percIng)/100);
+    $("mvI_a.1").value=fmtN(Math.round(baseA1*(1-percIng/100)*100)/100);
+    aggiornaDelta("a.1");
+    $("mvI_a.2").value=fmtN(Math.round(baseA2*(1-percIng/100)*100)/100);
+    aggiornaDelta("a.2");
+    ULTIMO_RIBASSO_GARA["a.1"]=baseA1; ULTIMO_RIBASSO_GARA["a.2"]=baseA2;
+    aggiornaDelta("ECO_ING");
+  }
+  aggiornaDelta("ECO");
+}
+/* e.17 — Opere artistiche L. 717/1949 (§3.2.16 del libro), richiesto da Mauro il 15-7-2026.
+   Iter in tre correzioni lo stesso giorno: (1) prima richiesta, con interpolazione lineare nei valori intermedi —
+   segnalata la discrepanza col testo di legge, che il libro cita per esteso (art. 1: scaglioni a soglia unica,
+   l'aliquota di fascia si applica all'INTERO importo lavori, non a una quota). (2) Mauro ha fatto notare che
+   applicato alla lettera lo schema a scaglioni fissi produce un risultato non monotono (un'opera da 15M
+   accantonerebbe più di una da 25M) e ha chiesto uno schema A SCAGLIONI PROGRESSIVI MARGINALI, come le aliquote
+   IRPEF (ogni fascia tassa solo la propria quota) — implementato e verificato sul suo esempio (30.000.000 →
+   280.000 = 0×1M + 0,02×4M + 0,01×15M + 0,005×10M). (3) Mauro ha poi approfondito con fonti giuridiche e ha
+   confermato la linea del punto (1): il testo letterale dell'art. 1 (§3.2.16) è a SCAGLIONI FISSI sull'INTERO
+   importo lavori, senza progressione — "consideriamo chiuso il tema" (15-7-2026). Esempio: 1.100.000 → 2% di
+   1.100.000 = 22.000 (non 2.000 come con lo schema marginale del punto 2, ora sostituito). Il problema di
+   non-monotonia del punto (2) resta latente nel testo di legge così scritto: non è un difetto di questa
+   implementazione, Mauro ne è consapevole e ha chiuso il tema dopo approfondimento. */
+const L717_SCAGLIONI=[{fino:1000000,perc:0},{fino:5000000,perc:2},{fino:20000000,perc:1},{fino:Infinity,perc:0.5}];
+function accantonamentoL717(importo){
+  const s=L717_SCAGLIONI.find(x=>importo<=x.fino)||L717_SCAGLIONI[L717_SCAGLIONI.length-1];
+  return importo*s.perc/100;
+}
+function calcolaL717(){
+  /* dal 15-7-2026: soggetta_L717 è ora una stringa a tre stati ("", "si", "no"), non più un booleano — "no" è una
+     stringa non vuota (truthy), quindi il calcolo deve essere abilitato SOLO sul valore esplicito "si", non su
+     "qualunque valore diverso da vuoto/false" come nella prima stesura (che avrebbe erroneamente calcolato anche
+     con "no"). */
+  if(db.testata.soggetta_L717!=="si") return alert("L'opera non è segnata come soggetta alla L. 717/1949 (v. Dati generali di base): imputare e.17 manualmente se comunque dovuto.");
+  /* importo lavori "a base di gara": se l'aggiudicazione è già avvenuta, usa il lordo congelato (base di gara,
+     v. calcolaEco()/proiezione()) — coerente con R-01/R-02/R-08/R-09, che leggono lo stesso valore. Prima
+     dell'aggiudicazione (nessuna base di gara ancora registrata) usa il valore corrente di "a" nella fase,
+     su indicazione esplicita di Mauro (15-7-2026): si ricalcola a ogni evento finché non c'è aggiudicazione. */
+  const baseA=(PCUR.baseGara&&PCUR.baseGara.a!=null)?PCUR.baseGara.a:(REFCUR["a"]||0);
+  const valore=accantonamentoL717(baseA);
+  $("mvI_e.17").value=fmtN(Math.round(valore*100)/100);
+  aggiornaDelta("e.17");
+}
+/* e.18.7 — Contributo ANAC (§3.2.17.7 del libro; per il 2026, Delibera ANAC 524 del 22-12-2025, tabella fornita
+   da Mauro il 15-7-2026 e confermata sul libro). A differenza della L.717/1949, qui la tabella è a scaglioni
+   FISSI (un importo unico per fascia, non un calcolo progressivo): la delibera stessa la esprime così, nessuna
+   interpolazione o progressione da applicare. Esente sotto 40.000 €. NOTA (non automatizzabile): restano escluse
+   dal pagamento le SA per ricostruzione post-sisma 2016/2017 e gli affidamenti ex D.M. MAECI 192/2017 — casi che
+   il calcolo non può riconoscere dal solo importo; il valore resta comunque modificabile a mano per questi casi. */
+const ANAC_SCAGLIONI=[{da:0,a:40000,importo:0},{da:40000,a:150000,importo:35},{da:150000,a:300000,importo:250},
+  {da:300000,a:500000,importo:250},{da:500000,a:800000,importo:410},{da:800000,a:1000000,importo:410},
+  {da:1000000,a:5000000,importo:660},{da:5000000,a:20000000,importo:880},{da:20000000,a:Infinity,importo:880}];
+function contributoAnac(importo){ const s=ANAC_SCAGLIONI.find(x=>importo>=x.da&&importo<x.a); return s?s.importo:880; }
+function calcolaAnac(){
+  /* dal 15-7-2026, su indicazione esplicita di Mauro: la base è "IMPORTO TOTALE DELL'APPALTO" (a+b+c+d, +a.1+a.2
+     se integrato), da aggiornare liberamente fino alla chiusura di F.03/PFTE (integrato) o F.04/PE (ordinario),
+     poi congelato (v. chiudiFase()/proiezione().baseAnac — stesso principio "un solo congelamento" di baseGara,
+     ma scalare e con un trigger diverso). Prima di quel congelamento, usa il totale corrente (REFCUR). */
+  const mostraIng=db.testata.modalita_affidamento==="appalto_integrato"&&faseIdx(db.testata.fase_corrente)>=faseIdx("PFTE");
+  const totAppCorrente=(REFCUR["a"]||0)+(REFCUR["b"]||0)+(REFCUR["c"]||0)+(REFCUR["d"]||0)+(mostraIng?(REFCUR["a.1"]||0)+(REFCUR["a.2"]||0):0);
+  const importo=(PCUR.baseAnac!=null)?PCUR.baseAnac:totAppCorrente;
+  $("mvI_e.18.7").value=fmtN(contributoAnac(importo));
+  aggiornaDelta("e.18.7");
+}
+function aggiornaDelta(k){
+  const el=$("mvI_"+k), cell=$("mvD_"+k);
+  if(el&&cell){
+    if(!el.value.trim()){ cell.textContent=""; cell.style.background="#fff"; }
+    else{
+      const v=parseIt(el.value);
+      const d=v-(REFCUR[k]||0);
+      cell.textContent=(d>0?"+":"")+fmtN(d);
+      cell.style.background=Math.abs(d)<0.005?"#fff":(d>0?"#fde8e6":"#e2f2e8");
+    }
+  }
+  aggiornaTotali();
+}
+function fontiTxtSingola(f){
+  if(!f) return "";
+  return [f.tipo_doc,f.codice,f.titolo].filter(Boolean).join(" ")+(f.pagina?" p."+f.pagina:"")+(f.revisione?" rev."+f.revisione:"")+(f.data?" del "+fmtData(f.data):"");
+}
+function addFonteDoc(){
+  const tipo_doc=$("fT").value.trim(), codice=$("fC").value.trim(), titolo=$("fTi").value.trim();
+  if(!tipo_doc&&!codice&&!titolo) return alert("Indicare almeno tipo documento, codice o titolo della pezza giustificativa.");
+  fontiEvento.push({tipo_doc,codice,titolo,pagina:$("fP").value.trim(),revisione:$("fR").value.trim(),data:$("fD").value});
+  $("fT").value="";$("fC").value="";$("fTi").value="";$("fP").value="";$("fR").value="";$("fD").value="";
+  renderListaFonti();
+  aggiornaSelectDocRif();
+}
+function rmFonteDoc(i){
+  fontiEvento.splice(i,1);
+  renderListaFonti();
+  aggiornaSelectDocRif();
+}
+function renderListaFonti(){
+  /* Elenco pezze giustificative in fondo al riquadro (corretto il 14-7-2026, segnalato da Mauro): deve mostrare anche
+     le pezze storiche (di eventi precedenti), non solo quelle nuove di questo evento, con la STESSA numerazione unica
+     e progressiva usata nel menù a tendina Doc. Rif. (opzioniDocRif()) — se ci sono già 6 pezze storiche, la prima
+     nuova di questo evento è la "7.". Le pezze storiche sono mostrate in sola lettura (nessun pulsante "rimuovi":
+     sono già parte del registro eventi, append-only). */
+  const el=$("listaFonti"); if(!el) return;
+  const storiche=pezzeStoriche();
+  const tutte=storiche.concat(fontiEvento.map((f,i)=>({ref:"N:"+i,f})));
+  if(!tutte.length){ el.innerHTML='<p class="mini vuoto">Nessuna pezza giustificativa aggiunta.</p>'; return; }
+  el.innerHTML='<ol style="margin:6px 0 0 20px">'+tutte.map(d=>{
+    if(d.ref.indexOf("N:")===0){
+      const idxLocale=+d.ref.slice(2);
+      return "<li>"+esc(fontiTxtSingola(d.f))+' <button type="button" class="sec" style="padding:1px 8px;font-size:12px" onclick="rmFonteDoc('+idxLocale+')">rimuovi</button></li>';
+    }
+    return '<li class="mini" style="color:#7a8494">'+esc(fontiTxtSingola(d.f))+" <span>(evento precedente)</span></li>";
+  }).join("")+'</ol>';
+}
+function pezzeStoriche(){
+  /* pezze giustificative già registrate in eventi precedenti — elenco stratificato (dal 13-7-2026): l'elenco non si azzera più ad ogni evento.
+     Solo dagli eventi di aggiornamento QE (tipo_innesco==="evento", generati da registraEvento()): esclude NOMINA/CESSAZIONE_INCARICO/CHIUSURA_FASE,
+     che valorizzano `fonte` con l'atto di incarico/chiusura — un documento diverso, non una pezza giustificativa del QE (bug corretto il 13-7-2026). */
+  const out=[];
+  db.registro_eventi.filter(ev=>ev.tipo_innesco==="evento").forEach(ev=>{ (ev.fonte||[]).forEach((f,idx)=>out.push({ref:"H:"+ev.id+":"+idx,f})); });
+  return out;
+}
+function opzioniDocRif(){
+  const tutte=pezzeStoriche().concat(fontiEvento.map((f,i)=>({ref:"N:"+i,f})));
+  return '<option value="">— selezionare —</option>'+tutte.map((d,i)=>'<option value="'+d.ref+'">'+esc((i+1)+". "+fontiTxtSingola(d.f))+"</option>").join("");
+}
+function risolviDocRif(refStr){
+  /* converte il value del select Doc. Rif. nel formato salvato su delta.doc_rif:
+     "H:eventoId:idx" (pezza di un evento precedente) -> stringa "eventoId:idx";
+     "N:idx" (pezza appena aggiunta in questo evento, in fontiEvento) -> numero idx, indice in ev.fonte del nuovo evento (come prima della v0.09.1) */
+  if(refStr.indexOf("H:")===0) return refStr.slice(2);
+  if(refStr.indexOf("N:")===0) return +refStr.slice(2);
+  return null;
+}
+function aggiornaSelectDocRif(){
+  db.dizionario_voci.forEach(x=>{
+    const sel=$("mvDoc_"+x.key); if(!sel) return;
+    const v=sel.value;
+    sel.innerHTML=opzioniDocRif();
+    if(v!=="") sel.value=v; /* se l'opzione esiste ancora resta selezionata, altrimenti il select torna vuoto */
+  });
+}
+async function registraEvento(){
+  const tipo=$("eTipo").value, fase=db.testata.fase_corrente;
+  /* dal 15-7-2026 (richiesto da Mauro): prima del PRIMO evento "vero" (compilato da questo form, tipo_innesco
+     "evento" — NOMINA/CESSAZIONE_INCARICO generati da Soggetti non contano: hanno tipo_innesco "atto" e possono
+     precedere il primo evento di Registro eventi senza che l'utente abbia ancora completato la Testata) in fase
+     F.01/TRI, la Testata deve avere "Tipologia dell'intervento" e "Soggetta L. 717/1949" già valorizzati (non il
+     placeholder "--"/vuoto). Se manca uno dei due: invece di bloccare con un semplice alert, si salva la bozza
+     dell'evento in corso (come "Salva e continua dopo") così l'utente non perde quanto già digitato, e si invita
+     a tornare in Testata a completare la classificazione prima di riprendere e concludere l'evento. */
+  const primoEventoVero=fase==="TRI"&&!db.registro_eventi.some(e=>e.tipo_innesco==="evento");
+  if(primoEventoVero&&(!db.testata.tipologia_intervento||!db.testata.soggetta_L717)){
+    salvaBozza();
+    $("eMsg").innerHTML='<div class="msg err">Prima di registrare il primo evento della fase F.01 occorre completare i Dati generali di base: torna alla sezione "Dati generali di base", seleziona la "Tipologia dell\'intervento" (da cui deriva automaticamente "Soggetta L. 717/1949"), poi torna al Registro eventi per concludere il salvataggio. I dati già inseriti in questo evento sono stati conservati in bozza.</div>';
+    return;
+  }
+  if(!tipo) return alert("Selezionare il tipo di evento.");
+  const rResp=document.querySelector('input[name="eRedR"]:checked');
+  if(!rResp) return alert("Selezionare il responsabile attività di fase (RUP, DEC o Progettista).");
+  const descrEv=$("eDesc").value.trim().slice(0,100);
+  if(!descrEv) return alert("Inserire la descrizione dell'evento (max 100 caratteri).");
+  const pAttuale=proiezione(null,faseIdx(fase));
+  const delta=[]; const valori={}; const statiEv={};
+  for(const x of db.dizionario_voci){
+    const el=$("mvI_"+x.key);
+    if(!el||!el.value.trim()) continue;
+    const vTot=parseIt(el.value);
+    const selDoc=$("mvDoc_"+x.key);
+    const docIdxStr=selDoc?selDoc.value:"";
+    if(docIdxStr==="") return alert("Voce "+x.key+": selezionare il documento di riferimento (Doc. Rif.) prima di concludere l'evento.");
+    const docIdx=risolviDocRif(docIdxStr);
+    const serie=SERIE_MOV.filter(s=>$("mv_"+s[0]+"_"+x.key).checked).map(s=>s[0]);
+    if(serie.length){
+      serie.forEach(s=>{
+        const d=vTot-serieVal(pAttuale,s,x.key);
+        if(Math.abs(d)>=0.005) delta.push({voce:x.key,importo:Math.round(d*100)/100,serie:s,doc_rif:docIdx});
+      });
+    }else{
+      /* nessuno stato spuntato (facoltativo dalla v0.08): il movimento si registra comunque, confrontato col valore corrente complessivo della voce */
+      const d=vTot-(pAttuale.cur[x.key]||0);
+      if(Math.abs(d)>=0.005) delta.push({voce:x.key,importo:Math.round(d*100)/100,serie:null,doc_rif:docIdx});
+    }
+    valori[x.key]=vTot; statiEv[x.key]=serie;
+  }
+  const fonte=fontiEvento.slice();
+  const msg=$("eMsg"); msg.innerHTML="";
+  const err=[];
+  if(!delta.length&&tipo!=="RICONCILIAZIONE_QE") err.push("Un evento di tipo «"+(EVENTI_LBL[tipo]||tipo)+"» senza movimenti è quasi certamente un errore.");
+  if(tipo==="REVISIONE_POST_GARA"&&!(db.testata.cig_principale||"").trim()) err.push("R-14: prima della revisione post-gara imputare il CIG principale in testata.");
+  if(err.length){ msg.innerHTML=err.map(e=>'<div class="msg err">'+e+"</div>").join(""); return; }
+  const ev={fase,tipo,tipo_innesco:"evento",atto:null,
+    redattore:{nominativo:$("eRedN").value,ruolo:rResp.value},
+    delta,fonte,valori,stati:statiEv,descrizione:descrEv,note:$("eNote").value};
+  /* dal 15-7-2026: se in questo evento è stato applicato un ribasso (calcolaEco()), allega la base di gara —
+     proiezione() la congela in modo permanente al PRIMO evento che la porta (il ribasso "si compie una sola
+     volta", libro §3.3.1): non va quindi risovrascritta da eventuali ricalcoli successivi sulla stessa opera. */
+  if(ULTIMO_RIBASSO_GARA) ev.base_gara=ULTIMO_RIBASSO_GARA;
+  // simulazione post-evento
+  const p=proiezione(db.registro_eventi.concat([ev]));
+  const {B,W}=valida(p,fase,false);
+  if(B.length){ msg.innerHTML=B.map(e=>'<div class="msg err">BLOCCO — '+e+"</div>").join(""); return; }
+  if(W.length&&!confirm("Avvertenze:\n\n"+W.join("\n")+"\n\nRegistrare comunque l'evento?")) return;
+  await appendEvento(ev);
+  db.bozza_evento=null;
+  ULTIMO_RIBASSO_GARA=null; /* consumata nell'evento appena registrato: il prossimo evento riparte pulito */
+  if(delta.length){
+    const t2=totali(p);
+    db.snapshot.push({id_snapshot:fase+"-ev"+ev.id,livello:"evento",descrizione:ev.descrizione,milestone:fase,stato_qe:statoQeDiFase(fase),
+      data:new Date().toISOString().slice(0,10),evento:ev.id,atto_approvazione:null,
+      ultimo_evento:ev.id,hash_registro:ev.hash,
+      totali:{qe_totale:t2.tot,fonti:t2.fonti},
+      proiezione:db.dizionario_voci.map(x=>({voce:x.key,importo:p.cur[x.key]||0}))});
+  }
+  render();
+  if(delta.length) alert('L\'evento è stato registrato correttamente e può essere visualizzato/stampato dalla sezione "snapshot e chiusura fase"');
+}
+
+/* ---- Snapshot e chiusura fase ---- */
+function rSnap(){
+  const f=db.testata.fase_corrente, seq=fasiSeq(), ultima=faseIdx(f)===seq.length-1;
+  const pv=proiezione(null,faseIdx(f)); const val=valida(pv,f,false);
+  $("vista").innerHTML=
+  '<div class="card"><h2>Esito validazioni sul QE corrente</h2>'+
+   (val.B.length||val.W.length? val.B.map(e=>'<div class="msg err">'+e+"</div>").join("")+val.W.map(e=>'<div class="msg warn">'+e+"</div>").join("") : '<div class="msg ok">Nessun rilievo sulle regole implementate.</div>')+
+  "</div>"+
+  '<div class="card"><h2>Raccolta snapshot (uno per evento, uno per chiusura di fase)</h2><table><thead><tr><th>Fase</th><th>Evento</th><th>Stato QE</th><th>Data</th><th class="num">QE totale</th><th></th></tr></thead><tbody>'+
+  db.snapshot.map((s,i)=>{const ts=totaliAllo(s.ultimo_evento);return "<tr><td>"+esc(faseLbl(s.milestone))+"</td><td>"+(s.livello==="fase"?'<span class="pill ok">'+esc(s.descrizione||"Chiusura di fase")+"</span>":esc(s.descrizione||("evento #"+(s.evento||""))))+"</td><td>"+s.stato_qe+"</td><td>"+fmtData(s.data)+'</td><td class="num">'+eur(ts.tot)+'</td><td><button class="sec" onclick="stampaCopertina('+i+')">Copertina / stampa</button></td></tr>';}).join("")+
+  '</tbody></table></div>'+
+  '<div class="card"><h2>Chiudi la fase corrente: '+esc(faseLbl(f))+'</h2>'+
+  '<p class="mini" style="margin-bottom:10px">La chiusura congela lo snapshot ufficiale del QE (stato: <b>'+statoQeDiFase(f)+'</b>)'+(ultima?" ed è l'ultima fase dell'opera.":" e fa avanzare l'opera alla fase successiva: <b>"+esc(faseLbl(seq[faseIdx(f)+1]))+"</b>.")+'</p><div class="griglia">'+
+   campo("snData","Data",new Date().toISOString().slice(0,10),false,"",' type="date"')+
+   campo("snAttoT","Atto — tipo","delibera")+campo("snAttoN","Atto — numero","")+campo("snAttoD","Atto — data","",false,"",' type="date"')+
+  '</div><div style="margin-top:8px"><button onclick="chiudiFase()">Chiudi fase e congela snapshot</button></div><div id="snMsg"></div>'+
+  '<p class="mini" style="margin-top:6px">L\'imprevisto e.5 sotto il 5% dei lavori blocca la registrazione fin dal primo evento. Le altre regole (R-01 eccesso e.1+e.5, R-02, R-08, R-09) restano avvertenze sui singoli eventi e diventano bloccanti solo in chiusura di fase.</p></div>';
+}
+async function chiudiFase(){
+  const f=db.testata.fase_corrente, seq=fasiSeq();
+  const p=proiezione(null,faseIdx(f)); const t=totali(p);
+  const {B,W}=valida(p,f,true);
+  const msg=$("snMsg");
+  if(B.length){ msg.innerHTML=B.map(e=>'<div class="msg err">BLOCCO — '+e+"</div>").join(""); return; }
+  if(W.length&&!confirm("Avvertenze:\n\n"+W.join("\n")+"\n\nChiudere comunque la fase?")) return;
+  if(!confirm("Chiudere la fase «"+faseLbl(f)+"»?\nL'operazione congela lo snapshot ufficiale e non si annulla dall'interfaccia.")) return;
+  const ev={fase:f,tipo:"CHIUSURA_FASE",tipo_innesco:"atto",atto:{tipo:$("snAttoT").value,numero:$("snAttoN").value,data:$("snAttoD").value,organo:""},redattore:{nominativo:"",ruolo:"rup"},delta:[],fonte:[],note:"Chiusura fase "+faseLbl(f)};
+  /* dal 15-7-2026 (richiesto da Mauro): l'importo totale dell'appalto (base del contributo ANAC, e.18.7) si
+     aggiorna liberamente fino alla chiusura di F.03/PFTE nell'appalto integrato o F.04/PE nell'appalto ordinario,
+     poi si congela (proiezione() lo raccoglie in baseAnac, primo evento che lo porta vince — v. sopra). */
+  const faseCongelamentoAnac=db.testata.modalita_affidamento==="appalto_integrato"?"PFTE":"PE";
+  if(f===faseCongelamentoAnac){
+    const mostraIngF=db.testata.modalita_affidamento==="appalto_integrato"&&faseIdx(f)>=faseIdx("PFTE");
+    ev.base_anac=(p.cur["a"]||0)+(p.cur["b"]||0)+(p.cur["c"]||0)+(p.cur["d"]||0)+(mostraIngF?(p.cur["a.1"]||0)+(p.cur["a.2"]||0):0);
+  }
+  await appendEvento(ev);
+  db.snapshot.push({id_snapshot:f+"-"+(db.snapshot.length+1),livello:"fase",descrizione:"Chiusura di fase",milestone:f,stato_qe:statoQeDiFase(f),data:$("snData").value,
+    atto_approvazione:{tipo:$("snAttoT").value,numero:$("snAttoN").value,data:$("snAttoD").value},
+    ultimo_evento:db.lineage.contatore_eventi,hash_registro:db.lineage.hash_ultimo_evento,
+    totali:{qe_totale:t.tot,fonti:t.fonti},
+    proiezione:db.dizionario_voci.map(x=>({voce:x.key,importo:p.cur[x.key]||0}))});
+  const i=faseIdx(f);
+  if(i<seq.length-1) db.testata.fase_corrente=seq[i+1];
+  render();
+}
+/* v1.00 (16-7-2026, richiesto da Mauro): il <title> del documento era "EasyQE — v0.11" fino a questa modifica —
+   i browser lo riportano di default nelle intestazioni/piè di pagina di stampa, identificando lo strumento invece
+   del contenuto stampato. stampaCopertina() imposta ora il titolo alla denominazione dell'opera subito prima di
+   window.print() e lo ripristina dopo la stampa tramite l'evento afterprint (non una riga subito dopo
+   window.print(): in alcuni browser il motore di stampa legge il titolo in modo asincrono rispetto alla chiamata,
+   e un ripristino immediato rischierebbe di avvenire prima che l'header di stampa sia stato letto). Funzione
+   dichiarata una volta sola e riusata: addEventListener scarta automaticamente un listener duplicato con lo
+   stesso riferimento di funzione, quindi resta registrato una sola volta anche richiamando stampaCopertina()
+   più volte nella stessa sessione. */
+function ripristinaTitoloStampa(){ document.title="Quadro economico"; }
+function stampaCopertina(i){
+  const s=db.snapshot[i], t=db.testata;
+  const fr=faseIdx(s.milestone);
+  /* Appalto integrato da PFTE (v0.11): servizi di ingegneria (e, f) e relativa economia (ECO_ING) — v. voceVisibile(). */
+  const mostraIng=t.modalita_affidamento==="appalto_integrato"&&fr>=faseIdx("PFTE");
+  const etichettaApp="Importo totale dell'appalto (a + b + c + d"+(mostraIng?" + a.1 + a.2":"")+")";
+  /* dal 15-7-2026 (segnalato da Mauro): "progettista" è l'unico ruolo dove più soggetti possono essere
+     in carica insieme (DOCFAP/PFTE/PE nominati liberamente) — l'elenco figure chiave deve elencarli TUTTI,
+     non solo il primo trovato come per gli altri ruoli (che restano a un solo titolare per volta). */
+  const inCarica=r=>{
+    if(r==="progettista"){
+      const cand=progettistiAttivi();
+      return cand.length?cand.map(s=>esc(labelProgettista(s))).join("<br>"):'<span class="vuoto">non ancora affidato</span>';
+    }
+    const x=db.soggetti.find(sg=>sg.ruolo===r&&!sg.cessazione); if(!x) return '<span class="vuoto">non ancora affidato</span>'; let out=esc(x.denominazione); if(x.nominativo) out+=" — "+esc(x.nominativo); if(x.componenti) out+=" — "+x.componenti.map(esc).join(", "); return out;
+  };
+  // proiezione alla data dello snapshot (fino all'ultimo evento incluso, alla fase di quello snapshot)
+  const p=proiezione(db.registro_eventi.filter(ev=>ev.id<=s.ultimo_evento),fr);
+  const LBLST={necessita:"necessario",stanziamento:"stanziato",impegnato:"impegnato",liquidato:"liquidato"};
+  const visibili=vociVisibili(fr);
+  const ordineDoc=[...visibili.filter(x=>x.quadro==="A"),...visibili.filter(x=>x.quadro==="B"&&x.key!=="ECO"&&x.key!=="ECO_ING"),...visibili.filter(x=>x.key==="ECO"||x.key==="ECO_ING")];
+  /* Elenco CUMULATIVO dei documenti di riferimento (corretto il 14-7-2026, segnalato da Mauro): non solo i documenti
+     attualmente citati da qualche voce, ma TUTTI quelli mai usati come Doc. Rif. in un evento fino a questo snapshot,
+     in ordine cronologico — coerente con la stratificazione già applicata al menù a tendina (13-7-2026). Prima, un
+     documento spariva dall'elenco appena la voce che lo citava veniva ricollegata a un documento diverso in un evento
+     successivo (perdendo visibilità su una pezza che aveva comunque giustificato una spesa passata). Gli snapshot già
+     chiusi restavano comunque corretti (filtrati per ev.id<=ultimo_evento): il problema riguardava solo i nuovi. */
+  const eventiRilevanti=db.registro_eventi.filter(ev=>ev.id<=s.ultimo_evento);
+  const docElenco=[];
+  const trovaOAggiungiDoc=f=>{
+    if(!f) return -1;
+    const chiave=JSON.stringify(f);
+    let idx=docElenco.findIndex(d=>d._chiave===chiave);
+    if(idx===-1){ docElenco.push({_chiave:chiave,f}); idx=docElenco.length-1; }
+    return idx;
+  };
+  eventiRilevanti.forEach(ev=>{
+    (ev.delta||[]).forEach(d=>{
+      if(d.doc_rif==null) return;
+      let f=null;
+      if(typeof d.doc_rif==="string"&&d.doc_rif.indexOf(":")!==-1){
+        const [refEvId,refIdx]=d.doc_rif.split(":");
+        const evRif=eventiRilevanti.find(e=>e.id===+refEvId)||db.registro_eventi.find(e=>e.id===+refEvId);
+        if(evRif&&evRif.fonte) f=evRif.fonte[+refIdx];
+      }else if(ev.fonte){
+        f=ev.fonte[d.doc_rif];
+      }
+      trovaOAggiungiDoc(f);
+    });
+  });
+  // numDoc[voce]: posizione nell'elenco cumulativo del documento ATTUALMENTE di riferimento per quella voce (ultimo evento vince, F6 invariato)
+  const numDoc={};
+  ordineDoc.forEach(x=>{
+    const f=p.docRif[x.key];
+    numDoc[x.key]=f?(trovaOAggiungiDoc(f)+1):null;
+  });
+  const rigaV=x=>{ const k=x.key; const calcolata=disaggAttiva(x,fr); const indentSt=x.sotto_voce_di?" style='padding-left:22px'":"";
+    const etichetta=calcolata?(p.sommata[k]?" <i>(totale sotto-voci)</i>":" <i>(stima forfettaria, sotto-voci non ancora dettagliate)</i>"):"";
+    return "<tr"+(x.natura==="di_cui"?" style='color:#666'":"")+"><td style='width:7%'>"+k+"</td><td"+indentSt+">"+esc(x.descrizione)+etichetta+"</td><td style='width:26%;text-align:right'>"+eur(p.cur[k]||0)+"</td><td style='width:6%;text-align:center'>"+(calcolata?"—":(numDoc[k]||"—"))+"</td><td style='width:15%'>"+(calcolata?"—":((p.stati[k]||[]).map(z=>LBLST[z]||z).join(" · ")||"—"))+"</td></tr>"; };
+  const somma=keys=>keys.reduce((tt,k)=>tt+(p.cur[k]||0),0);
+  const totB=visibili.filter(x=>x.quadro==="B"&&x.natura==="additiva"&&!p.sommata[x.key]&&x.key!=="ECO"&&x.key!=="ECO_ING").reduce((tt,x)=>tt+(p.cur[x.key]||0),0);
+  /* dal 15-7-2026 (segnalato da Mauro, confermato dal libro §3.3/3.3.1): "a"/"d"/"a.1"/"a.2" sono già al netto del
+     ribasso (calcolaEco() le riscrive al momento dell'aggiudicazione) — non si sottrae più ECO/ECO_ING qui, altrimenti
+     il ribasso conterebbe due volte (bug segnalato in collaudo: il totale scendeva ma le singole voci in tabella
+     restavano al lordo, "i conti non tornavano"). ECO/ECO_ING restano una riga a sé, sotto, a fini di trasparenza. */
+  const totRib=somma(["a","d"]), totNR=somma(["b","c"]),
+        totIng=mostraIng?somma(["a.1","a.2"]):0,
+        totApp=totRib+totNR+totIng, totTot=totApp+totB;
+  const rigaT=(lbl,v)=>"<tr style='font-weight:bold;background:#f2f2f2'><td colspan='2'>"+lbl+"</td><td style='text-align:right'>"+eur(v)+"</td><td></td><td></td></tr>";
+  const rigaIntestazione="<tr><td colspan='5' style='border:none;height:8px'></td></tr>"+
+   "<tr style='font-size:11px;color:#666;font-weight:bold'><td>#</td><td>Voce</td><td style='text-align:right'>Importo</td><td style='text-align:center'>Doc. Rif.</td><td>Stato</td></tr>";
+  $("copertina").innerHTML='<div class="cop-int">'+
+   "<h1>QUADRO ECONOMICO</h1><h2 class=\"den\">"+esc(t.denominazione)+"</h2>"+
+   "<h2 style='text-align:left;margin-top:18px;font-weight:bold'>Descrizione dell'opera</h2><p>"+esc(t.descrizione_opera||"—").replace(/\n/g,"<br>")+"</p>"+
+   "<h2 style='text-align:left;margin-top:14px;font-weight:bold'>Presentazione e inquadramento del QE</h2><p>"+esc(t.presentazione||"—").replace(/\n/g,"<br>")+"</p>"+
+   "<h2 style='text-align:left;margin-top:14px;font-weight:bold'>Sintesi e macro-dati</h2><table>"+
+   ["CUI:"+ (t.cui||"—"),"CUP:"+(t.cup||"CUP_DA_DEFINIRE"),"CIG:"+(t.cig_principale||"da definire"),
+    "Tipologia di appalto:"+(t.modalita_affidamento||"appalto_ordinario").replace(/_/g," "),
+    "Stazione appaltante:"+esc(t.stazione_appaltante.denominazione)+" — "+esc(t.stazione_appaltante.ufficio_o_settore)+" — "+esc(t.stazione_appaltante.citta),
+    "Fase:"+faseLbl(s.milestone),"Stato del QE:"+s.stato_qe,
+    "Evento:"+esc(s.descrizione||(s.livello==="fase"?"Chiusura di fase":"evento n. "+(s.evento||""))),
+    "Data dell'evento:"+fmtData(s.data),
+    "QE totale:"+eur(totTot),"Finanziamenti totali disponibili:"+eur(totali(p).fonti)
+   ].map(r=>{const k=r.indexOf(":");return "<tr><td style='width:40%'><b>"+r.slice(0,k)+"</b></td><td>"+r.slice(k+1)+"</td></tr>";}).join("")+
+   db.fonti_finanziamento.map(fz=>"<tr><td style='padding-left:22px'>"+esc(fz.id_fonte)+" — "+esc(fz.descrizione)+(fz.ente_erogatore?" ("+esc(fz.ente_erogatore)+")":"")+"</td><td>"+eur(+fz.importo)+"</td></tr>").join("")+
+   "</table><h2 style='text-align:left;margin-top:16px;font-weight:bold'>Identificazione figure chiave</h2><table>"+
+   RUOLI.map(r=>"<tr><td style='width:40%'><b>"+r[1]+"</b></td><td>"+inCarica(r[0])+"</td></tr>").join("")+
+   "</table>"+
+   "<div style='page-break-before:always'></div>"+
+   "<h2 style='text-align:left;margin-top:10px;font-weight:bold'>Quadro economico</h2><table>"+
+   "<tr style='font-weight:bold;background:#f3f3f3'><td colspan='5'>QUADRO A — Importo dell'appalto</td></tr>"+
+   rigaIntestazione+
+   visibili.filter(x=>x.quadro==="A").map(rigaV).join("")+
+   rigaT("Totale opere soggette a ribasso (a + d, al netto dell'economia da ribasso)",totRib)+
+   (mostraIng?rigaT("Totale servizi di ingegneria soggetto a ribasso (a.1 + a.2, al netto dell'economia da ribasso)",totIng):"")+
+   rigaT("Totale opere non soggette a ribasso (b + c)",totNR)+
+   rigaT(etichettaApp,totApp)+
+   "<tr><td colspan='5' style='border:none;height:14px'></td></tr>"+
+   "<tr style='font-weight:bold;background:#f3f3f3'><td colspan='5'>QUADRO B — Somme a disposizione dell'Amministrazione</td></tr>"+
+   rigaIntestazione+
+   visibili.filter(x=>x.quadro==="B"&&x.key!=="ECO"&&x.key!=="ECO_ING").map(rigaV).join("")+
+   rigaT("Totale quadro B",totB)+
+   rigaT(etichettaApp,totApp)+
+   rigaT("TOTALE COMPLESSIVO",totTot)+
+   "<tr><td colspan='5' style='border:none;height:14px'></td></tr>"+
+   "<tr style='font-weight:bold;background:#f3f3f3'><td colspan='5'>ECONOMIE DA RIBASSO — accantonate, non incluse nel totale complessivo</td></tr>"+
+   visibili.filter(x=>x.key==="ECO"||x.key==="ECO_ING").map(rigaV).join("")+
+   "<tr><td colspan='5' style='border:none;height:14px'></td></tr>"+
+   "<tr style='font-weight:bold;background:#f3f3f3'><td colspan='5'>Documenti di riferimento</td></tr>"+
+   (docElenco.length
+     ? docElenco.map((d,idx)=>"<tr><td style='width:8%'>"+(idx+1)+"</td><td colspan='4'>"+esc(fontiTxtSingola(d.f))+"</td></tr>").join("")
+     : "<tr><td colspan='5' class='mini vuoto'>Nessun documento di riferimento associato alle voci di questo quadro economico.</td></tr>")+
+   "</table>"+
+   "</div>";
+  document.title=(t.denominazione&&t.denominazione.trim())?t.denominazione:"Quadro economico";
+  window.addEventListener("afterprint",ripristinaTitoloStampa);
+  window.print();
+}
+
+/* ---- Export ---- */
+function rExport(){
+  $("vista").innerHTML='<div class="card"><h2>Esportazioni</h2>'+
+  '<p style="margin-bottom:10px">Esporta i dati per i lettori e per i sistemi contabili (CSV con separatore “;”, decimali con virgola).</p>'+
+  '<button onclick="csvRegistro()">Registro eventi (CSV)</button> '+
+  '<button onclick="csvProiezione()">Proiezione QE (CSV)</button> '+
+  '<button class="sec" onclick="salvaFile()">File opera (JSON)</button></div>';
+}
+function scarica(nome,testo){ const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob(["﻿"+testo],{type:"text/csv;charset=utf-8"})); a.download=nome; a.click(); }
+function numIt(n){ return String((n||0).toFixed(2)).replace(".",","); }
+function csvRegistro(){
+  let out="id;data;fase;tipo;innesco;atto_tipo;atto_numero;atto_data;redattore;ruolo;voce;importo;cig;fonti;note\n";
+  db.registro_eventi.forEach(ev=>{
+    const fon=(ev.fonte||[]).map(f=>f.tipo_doc+" "+f.codice).join(" | ");
+    const righe=(ev.delta&&ev.delta.length)?ev.delta:[{voce:"",importo:null}];
+    righe.forEach(d=>{ out+=[ev.id,ev.timestamp.slice(0,10),ev.fase,ev.tipo,ev.tipo_innesco,(ev.atto||{}).tipo||"",(ev.atto||{}).numero||"",(ev.atto||{}).data||"",(ev.redattore||{}).nominativo||"",(ev.redattore||{}).ruolo||"",d.voce,d.importo==null?"":numIt(d.importo),ev.cig||"",fon,(ev.note||"").replace(/[\n;]/g," ")].join(";")+"\n"; });
+  });
+  scarica(nomeFile().replace(".json","_registro.csv"),out);
+}
+function csvProiezione(){
+  const fr=faseIdx(db.testata.fase_corrente);
+  const p=proiezione(null,fr);
+  let out="voce;codice_norma;descrizione;quadro;natura;stanziamento;impegnato;liquidato;riferimenti_documentali\n";
+  vociVisibili(fr).forEach(x=>{ out+=[x.key,x.codice,x.descrizione.replace(/;/g,","),x.quadro,x.natura,numIt(p.st[x.key]||0),numIt(p.imp[x.key]||0),numIt(p.liq[x.key]||0),fontiTxt(p.fonti[x.key]).replace(/;/g,"|")].join(";")+"\n"; });
+  scarica(nomeFile().replace(".json","_proiezione.csv"),out);
+}
+
+/* ====== AVVIO ====== */
+/* Badge e footer sono allineati alla costante APP_VERSION: per cambiare versione
+   basta modificare la sola costante. */
+$("hVer").textContent="v"+APP_VERSION;
+$("fVer").textContent="v"+APP_VERSION;
+render();
+</script>
+</body>
+</html>
